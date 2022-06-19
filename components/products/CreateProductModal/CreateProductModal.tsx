@@ -8,7 +8,7 @@ import {
   updateProductUnallocatedQuantity,
   updateWarehousesProductsStorage,
 } from '../../../model/model'
-import { SelectWarehouse, Warehouse } from '../../../assets/types'
+import { BasicWarehouse, Warehouse } from '../../../assets/types'
 import styles from './createProductModal.module.css'
 import ProductDistribution from '../../ProductDistribution/ProductDistribution'
 
@@ -20,7 +20,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   setModalIsOpened,
 }) => {
   const warehouseStorage: Warehouse[] = useStore($warehousesStorage)
-  const [addedWarehouses, setAddedWarehouses] = useState<SelectWarehouse[]>([])
+  const [addedWarehouses, setAddedWarehouses] = useState<BasicWarehouse[]>([])
   const [newProduct, setNewProduct] = useState({
     name: '',
     id: 0,
@@ -31,7 +31,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const addNewProduct = () => {
     updateProductsStorage(newProduct)
     addedWarehouses.forEach((item) => {
-      updateProductUnallocatedQuantity(item.warehouse.product)
+      updateProductUnallocatedQuantity(item.product)
       updateWarehousesProductsStorage(item)
     })
     setModalIsOpened(false)
@@ -39,36 +39,27 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
   const updateProductQuantity = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    selectItem: SelectWarehouse,
+    selectItem: BasicWarehouse,
   ) => {
     setAddedWarehouses(
       addedWarehouses.map((item) => {
         if (item.id !== selectItem.id) return item
         return {
           ...item,
-          warehouse: {
-            ...item.warehouse,
-            product: {
-              ...item.warehouse.product,
-              quantity: Number(e.target.value),
-            },
+          product: {
+            ...item.product,
+            quantity: Number(e.target.value),
           },
         }
       }),
     )
   }
 
-  const changeSelectValue = (
-    event: SelectChangeEvent,
-    selectItem: SelectWarehouse,
-  ) => {
+  const changeSelectValue = (event: SelectChangeEvent) => {
     setAddedWarehouses(
       addedWarehouses.map((item) => {
-        if (item.id !== selectItem.id) return item
-        return {
-          ...item,
-          warehouse: { ...item.warehouse, id: Number(event.target.value) },
-        }
+        if (item.id !== 0) return item
+        return { ...item, id: Number(event.target.value) }
       }),
     )
   }
@@ -105,11 +96,8 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
             setAddedWarehouses([
               ...addedWarehouses,
               {
-                id: Math.random(),
-                warehouse: {
-                  id: 0,
-                  product: { id: newProduct.id, quantity: 0 },
-                },
+                id: 0,
+                product: { id: newProduct.id, quantity: 0 },
               },
             ])
           }
@@ -124,7 +112,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
               selectListItem={warehouseStorage}
               itemStorage={addedWarehouses}
               setItemStorage={setAddedWarehouses}
-              selectChange={(e) => changeSelectValue(e, item)}
+              selectChange={changeSelectValue}
               inputChange={(e) => updateProductQuantity(e, item)}
             />
           ))}

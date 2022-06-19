@@ -12,7 +12,14 @@ const Index = () => {
   return (
     <div>
       {modalIsOpened && (
-        <CreateWarehouseModal setModalIsOpened={setModalIsOpened} />
+        <CreateWarehouseModal
+          setModalIsOpened={setModalIsOpened}
+          currentWarehouse={{
+            name: '',
+            id: Math.random(),
+            products: [],
+          }}
+        />
       )}
       <Button variant='outlined' onClick={() => setModalIsOpened(true)}>
         Добавить склад

@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import EntityCard from '../EntityCard/EntityCard'
-import Modal from '../UI/Modal/Modal'
 import { Product, Warehouse } from '../../assets/types'
 import styles from './itemsContainer.module.css'
+import CreateWarehouseModal from '../warehouses/CreateWarehouseModal/CreateWarehouseModal'
 
 interface WarehousesContainerProps {
   itemsStorage: Warehouse[] | Product[]
@@ -32,14 +32,15 @@ const ItemsContainer: React.FC<WarehousesContainerProps> = ({
           onClick={() => openWarehouse(item)}
         />
       ))}
-      {modalIsOpened && (
-        <Modal
-          name={currentItem?.name || ''}
+      {modalIsOpened && currentItem && (
+        // <EditWarehouseModal
+        //   currentItem={currentItem as Warehouse}
+        //   setModalIsOpened={setModalIsOpened}
+        // />
+        <CreateWarehouseModal
           setModalIsOpened={setModalIsOpened}
-          apply={() => console.log(currentItem)}
-        >
-          123
-        </Modal>
+          currentWarehouse={currentItem as Warehouse}
+        />
       )}
     </div>
   )

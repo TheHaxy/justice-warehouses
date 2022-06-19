@@ -1,22 +1,22 @@
 import { createEvent, createStore } from 'effector'
 import {
   BasicProduct,
+  BasicWarehouse,
   Product,
-  SelectWarehouse,
   Warehouse,
 } from '../assets/types'
 
 export const updateWarehousesStorage = createEvent<Warehouse>()
 export const updateProductsStorage = createEvent<Product>()
 export const updateProductUnallocatedQuantity = createEvent<BasicProduct>()
-export const updateWarehousesProductsStorage = createEvent<SelectWarehouse>()
+export const updateWarehousesProductsStorage = createEvent<BasicWarehouse>()
 
 export const $warehousesStorage = createStore<Warehouse[]>([])
   .on(updateWarehousesStorage, (state, msg) => [...state, msg])
   .on(updateWarehousesProductsStorage, (state, msg) =>
     state.map((el) => {
-      if (el.id !== msg.warehouse.id) return el
-      return { ...el, products: [...el.products, msg.warehouse.product] }
+      if (el.id !== msg.id) return el
+      return { ...el, products: [...el.products, msg.product] }
     }),
   )
 

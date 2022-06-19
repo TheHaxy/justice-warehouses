@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   FormControl,
   InputLabel,
@@ -6,33 +6,34 @@ import {
   Select,
   SelectChangeEvent,
 } from '@mui/material'
-import { Product, Warehouse } from '../../../assets/types'
+import {
+  BasicProduct,
+  BasicWarehouse,
+  Product,
+  Warehouse,
+} from '../../../assets/types'
 
 interface MySelectProps {
-  list: Product[] | Warehouse[]
+  list: (Product | Warehouse)[]
+  currentItem: BasicProduct | BasicWarehouse
   onChange: (e: SelectChangeEvent) => void
 }
 
-const MySelect: React.FC<MySelectProps> = ({ list, onChange }) => {
-  const [selectedItem, setSelectedItem] = useState('')
-
-  const handleChange = (e: SelectChangeEvent) => {
-    setSelectedItem(e.target.value)
-    onChange(e)
-  }
-
-  return (
-    <FormControl fullWidth>
-      <InputLabel>Продукт</InputLabel>
-      <Select value={selectedItem} label='Продукт' onChange={handleChange}>
-        {list.map((el) => (
-          <MenuItem key={el.id} value={el.id}>
-            {el.name} ({(el as Product).unallocatedQuantity}шт.)
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  )
-}
+const MySelect: React.FC<MySelectProps> = ({ list, onChange, currentItem }) => (
+  <FormControl fullWidth>
+    <InputLabel>Продукт</InputLabel>
+    <Select
+      value={currentItem.id ? String(currentItem.id) : ''}
+      label='Продукт'
+      onChange={onChange}
+    >
+      {list.map((el) => (
+        <MenuItem key={el.id} value={el.id}>
+          {el.name} ({(el as Product).unallocatedQuantity}шт.)
+        </MenuItem>
+      ))}
+    </Select>
+  </FormControl>
+)
 
 export default MySelect

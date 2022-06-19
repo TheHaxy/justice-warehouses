@@ -2,7 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Button, SelectChangeEvent, TextField } from '@mui/material'
 import { useStore } from 'effector-react'
 import Modal from '../../UI/Modal/Modal'
-import { Product, SelectProduct, Warehouse } from '../../../assets/types'
+import { BasicProduct, Product, Warehouse } from '../../../assets/types'
 import {
   $productsStorage,
   updateProductUnallocatedQuantity,
@@ -13,24 +13,24 @@ import ProductDistribution from '../../ProductDistribution/ProductDistribution'
 
 interface CreateWarehouseModalProps {
   setModalIsOpened: React.Dispatch<boolean>
+  currentWarehouse: Warehouse
 }
 
 const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
   setModalIsOpened,
+  currentWarehouse,
 }) => {
   const productStorage: Product[] = useStore($productsStorage)
   const unallocatedProducts = productStorage.filter(
     (product) => product.unallocatedQuantity,
   )
-  const [addedProducts, setAddedProducts] = useState<SelectProduct[]>([])
-  const [newWarehouse, setNewWarehouse] = useState<Warehouse>({
-    name: '',
-    id: Math.random(),
-    products: [],
-  })
+  const [addedProducts, setAddedProducts] = useState<BasicProduct[]>(
+    currentWarehouse.products,
+  )
+  const [newWarehouse, setNewWarehouse] = useState<Warehouse>(currentWarehouse)
 
   useEffect(() => {
-    const productsList = addedProducts.map((item) => item.product)
+    const productsList = addedProducts.map((item) => item)
     setNewWarehouse({
       ...newWarehouse,
       products: productsList,
@@ -47,52 +47,40 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
 
   const updateAddedProductQuantity = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    selectItem: SelectProduct,
+    selectItem: BasicProduct,
   ) => {
     setAddedProducts(
       addedProducts.map((item) => {
         if (item.id !== selectItem.id) return item
-        return {
-          ...item,
-          product: { ...item.product, quantity: Number(e.target.value) },
-        }
+        return { ...item, quantity: Number(e.target.value) }
       }),
     )
   }
 
-  const checkProductQuantity = (selectItem: SelectProduct) => {
+  const checkProductQuantity = (selectItem: BasicProduct) => {
     const productUnallocatedQuantity = productStorage.find(
-      (product) => +product.id === +selectItem.product.id,
+      (product) => +product.id === +selectItem.id,
     )?.unallocatedQuantity
 
     if (
       !productUnallocatedQuantity ||
-      productUnallocatedQuantity > selectItem.product.quantity
+      productUnallocatedQuantity > selectItem.quantity
     )
       return
 
     setAddedProducts(
       addedProducts.map((el) => {
         if (el.id !== selectItem.id) return el
-        return {
-          ...el,
-          product: { ...el.product, quantity: +productUnallocatedQuantity },
-        }
+        return { ...el, quantity: +productUnallocatedQuantity }
       }),
     )
   }
 
-  const changeSelectValue = (
-    event: SelectChangeEvent,
-    selectItem: SelectProduct,
-  ) => {
+  const changeSelectValue = (event: SelectChangeEvent) => {
     setAddedProducts(
       addedProducts.map((item) => {
-        if (item.id !== selectItem.id) return item
-        return {
-          ...item,
-          product: { ...item.product, id: Number(event.target.value) },
-        }
+        if (item.id !== 0) return item
+        return { ...item, id: Number(event.target.value) }
       }),
     )
   }
@@ -106,6 +94,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
       <div className={styles.ModalContent}>
         <TextField
           label='Название склада'
+          value={newWarehouse.name}
           onChange={(e) =>
             setNewWarehouse({ ...newWarehouse, name: e.target.value })
           }
@@ -115,10 +104,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
           disabled={!unallocatedProducts.length}
           onClick={() =>
             addedProducts.length < 5 &&
-            setAddedProducts([
-              ...addedProducts,
-              { id: Math.random(), product: { id: 0, quantity: 0 } },
-            ])
+            setAddedProducts([...addedProducts, { id: 0, quantity: 0 }])
           }
         >
           Добавить продукт
@@ -126,11 +112,12 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
         <div className={styles.AddedProductsContainer}>
           {addedProducts.map((item) => (
             <ProductDistribution
+              key={item.id}
               currentItem={item}
               selectListItem={unallocatedProducts}
               itemStorage={addedProducts}
               setItemStorage={setAddedProducts}
-              selectChange={(e) => changeSelectValue(e, item)}
+              selectChange={changeSelectValue}
               inputChange={(e) => updateAddedProductQuantity(e, item)}
               checkProductQuantity={() => checkProductQuantity(item)}
             />
