@@ -1,0 +1,15 @@
+.ModalContent {
+    @apply mx-8;
+    @apply flex flex-col gap-4;
+}
+
+.AddedProductsContainer {
+    @apply h-[21rem];
+    @apply flex flex-col gap-2
+}
+
+.CloseIcon {
+    @apply absolute right-[-2rem];
+    @apply flex items-center;
+    @apply cursor-pointer;
+}

@@ -1,0 +1,33 @@
+.Background {
+    @apply absolute top-0 left-0;
+    @apply w-full h-full;
+    @apply flex items-center justify-center;
+    @apply bg-translucent;
+    @apply z-10;
+}
+
+.Modal {
+    @apply relative;
+    @apply w-[34rem] h-[40rem] p-6;
+    @apply flex flex-col items-center justify-between;
+    @apply rounded-lg bg-white;
+}
+
+.CloseIcon {
+    @apply absolute right-2 top-2;
+    @apply hover:cursor-pointer;
+}
+
+.Content {
+    @apply w-full;
+    @apply flex flex-col gap-3;
+}
+
+.Title {
+    @apply mb-6;
+    @apply text-3xl;
+}
+
+.ApplyButton {
+    @apply min-w-[16rem]
+}
