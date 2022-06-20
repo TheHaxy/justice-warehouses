@@ -8,7 +8,7 @@
 
 .Modal {
     @apply relative;
-    @apply w-[34rem] h-[40rem] p-6;
+    @apply w-[40rem] h-[40rem] p-6;
     @apply flex flex-col items-center justify-between;
     @apply rounded-lg bg-white;
 }

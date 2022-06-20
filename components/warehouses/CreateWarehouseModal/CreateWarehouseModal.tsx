@@ -80,15 +80,6 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
     )
   }
 
-  const changeSelectValue = (event: SelectChangeEvent) => {
-    setAddedProducts(
-      addedProducts.map((item) => {
-        if (item.id !== 0) return item
-        return { ...item, id: Number(event.target.value) }
-      }),
-    )
-  }
-
   return (
     <Modal
       name='Добавить склад'
@@ -121,9 +112,10 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
               selectListItem={unallocatedProducts}
               itemStorage={addedProducts}
               setItemStorage={setAddedProducts}
-              selectChange={changeSelectValue}
               inputChange={(e) => updateAddedProductQuantity(e, item)}
               checkProductQuantity={() => checkProductQuantity(item)}
+              selectLabel='Продукт (нераспр. кол-во)'
+              enableQuantity
             />
           ))}
         </div>

@@ -81,21 +81,6 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
     )
   }
 
-  const changeSelectValue = (event: SelectChangeEvent) => {
-    if (
-      addedWarehouses.find(
-        (warehouse) => warehouse.id === Number(event.target.value),
-      )
-    )
-      return
-    setAddedWarehouses(
-      addedWarehouses.map((item) => {
-        if (item.id !== 0) return item
-        return { ...item, id: Number(event.target.value) }
-      }),
-    )
-  }
-
   return (
     <Modal
       name='Добавить продукт'
@@ -146,9 +131,9 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
               selectListItem={warehouseStorage}
               itemStorage={addedWarehouses}
               setItemStorage={setAddedWarehouses}
-              selectChange={changeSelectValue}
               inputChange={(e) => updateProductQuantity(e, item)}
               checkProductQuantity={() => checkProductQuantity(item)}
+              selectLabel='Склад'
             />
           ))}
         </div>

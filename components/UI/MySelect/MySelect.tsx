@@ -17,19 +17,28 @@ interface MySelectProps {
   list: (Product | Warehouse)[]
   currentItem: BasicProduct | BasicWarehouse
   onChange: (e: SelectChangeEvent) => void
+  selectLabel?: string
+  enableQuantity?: boolean
 }
 
-const MySelect: React.FC<MySelectProps> = ({ list, onChange, currentItem }) => (
+const MySelect: React.FC<MySelectProps> = ({
+  list,
+  onChange,
+  currentItem,
+  selectLabel,
+  enableQuantity,
+}) => (
   <FormControl fullWidth>
-    <InputLabel>Продукт</InputLabel>
+    <InputLabel>{selectLabel || ''}</InputLabel>
     <Select
       value={currentItem.id ? String(currentItem.id) : ''}
-      label='Продукт'
+      label={selectLabel || ''}
       onChange={onChange}
     >
       {list.map((el) => (
         <MenuItem key={el.id} value={el.id}>
-          {el.name} ({(el as Product).unallocatedQuantity}шт.)
+          {el.name}{' '}
+          {enableQuantity && `(${(el as Product).unallocatedQuantity}шт.)`}
         </MenuItem>
       ))}
     </Select>
