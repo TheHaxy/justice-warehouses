@@ -20,13 +20,3 @@ export interface Product {
   totalQuantity: number
   unallocatedQuantity: number
 }
-
-export interface SelectProduct {
-  id: number
-  product: BasicProduct
-}
-
-export interface SelectWarehouse {
-  id: number
-  warehouse: BasicWarehouse
-}

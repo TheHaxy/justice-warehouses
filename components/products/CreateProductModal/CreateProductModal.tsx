@@ -27,8 +27,14 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
     totalQuantity: 0,
     unallocatedQuantity: 0,
   })
+  const warehouseFieldsIsNotFilled = !!addedWarehouses.find(
+    (item) => !item.id || !item.product.quantity,
+  )
+  const thisProductFieldsIsNotFilled =
+    !newProduct.name || !newProduct.totalQuantity || warehouseFieldsIsNotFilled
 
   const addNewProduct = () => {
+    if (thisProductFieldsIsNotFilled) return
     updateProductsStorage(newProduct)
     addedWarehouses.forEach((item) => {
       updateProductUnallocatedQuantity(item.product)
@@ -55,7 +61,33 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
     )
   }
 
+  const checkProductQuantity = (selectItem: BasicWarehouse) => {
+    const selectedQuantityIsMorePossible =
+      !newProduct.unallocatedQuantity ||
+      newProduct.unallocatedQuantity > selectItem.product.quantity
+
+    if (selectedQuantityIsMorePossible) return
+    setAddedWarehouses(
+      addedWarehouses.map((warehouse) => {
+        if (warehouse.id !== selectItem.id) return warehouse
+        return {
+          ...warehouse,
+          product: {
+            ...warehouse.product,
+            quantity: newProduct.unallocatedQuantity,
+          },
+        }
+      }),
+    )
+  }
+
   const changeSelectValue = (event: SelectChangeEvent) => {
+    if (
+      addedWarehouses.find(
+        (warehouse) => warehouse.id === Number(event.target.value),
+      )
+    )
+      return
     setAddedWarehouses(
       addedWarehouses.map((item) => {
         if (item.id !== 0) return item
@@ -80,6 +112,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
         <TextField
           type='number'
           label='Количество'
+          inputProps={{ min: 0 }}
           onChange={(e) =>
             setNewProduct({
               ...newProduct,
@@ -91,6 +124,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
         />
         <Button
           variant='outlined'
+          disabled={!warehouseStorage.length || warehouseFieldsIsNotFilled}
           onClick={() =>
             addedWarehouses.length < 5 &&
             setAddedWarehouses([
@@ -114,6 +148,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
               setItemStorage={setAddedWarehouses}
               selectChange={changeSelectValue}
               inputChange={(e) => updateProductQuantity(e, item)}
+              checkProductQuantity={() => checkProductQuantity(item)}
             />
           ))}
         </div>

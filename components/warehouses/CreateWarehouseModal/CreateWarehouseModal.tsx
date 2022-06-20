@@ -21,13 +21,16 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
   currentWarehouse,
 }) => {
   const productStorage: Product[] = useStore($productsStorage)
+  const [newWarehouse, setNewWarehouse] = useState<Warehouse>(currentWarehouse)
+  const [addedProducts, setAddedProducts] = useState<BasicProduct[]>(
+    newWarehouse.products,
+  )
   const unallocatedProducts = productStorage.filter(
     (product) => product.unallocatedQuantity,
   )
-  const [addedProducts, setAddedProducts] = useState<BasicProduct[]>(
-    currentWarehouse.products,
+  const productFieldsIsNotFilled = !!addedProducts.find(
+    (item) => !item.id || !item.quantity,
   )
-  const [newWarehouse, setNewWarehouse] = useState<Warehouse>(currentWarehouse)
 
   useEffect(() => {
     const productsList = addedProducts.map((item) => item)
@@ -38,6 +41,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
   }, [addedProducts])
 
   const addNewWarehouse = () => {
+    if (!newWarehouse.name || productFieldsIsNotFilled) return
     newWarehouse.products.forEach((product) =>
       updateProductUnallocatedQuantity(product),
     )
@@ -101,7 +105,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
         />
         <Button
           variant='outlined'
-          disabled={!unallocatedProducts.length}
+          disabled={!unallocatedProducts.length || productFieldsIsNotFilled}
           onClick={() =>
             addedProducts.length < 5 &&
             setAddedProducts([...addedProducts, { id: 0, quantity: 0 }])

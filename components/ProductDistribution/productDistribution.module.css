@@ -1,0 +1,9 @@
+.ProductDistribution {
+    @apply relative;
+    @apply grid items-center grid-cols-2 gap-2;
+}
+
+.CloseIcon {
+    @apply absolute right-[-2rem] top-[25%];
+    @apply hover:cursor-pointer;
+}

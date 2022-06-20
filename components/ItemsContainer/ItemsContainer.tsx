@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useRouter } from 'next/router'
 import EntityCard from '../EntityCard/EntityCard'
 import { Product, Warehouse } from '../../assets/types'
 import styles from './itemsContainer.module.css'
-import CreateWarehouseModal from '../warehouses/CreateWarehouseModal/CreateWarehouseModal'
 
 interface WarehousesContainerProps {
   itemsStorage: Warehouse[] | Product[]
@@ -11,14 +11,10 @@ interface WarehousesContainerProps {
 const ItemsContainer: React.FC<WarehousesContainerProps> = ({
   itemsStorage,
 }) => {
-  const [modalIsOpened, setModalIsOpened] = useState(false)
-  const [currentItem, setCurrentItem] = useState<Warehouse | Product | null>(
-    null,
-  )
+  const router = useRouter()
 
   const openWarehouse = (item: Warehouse | Product) => {
-    setCurrentItem(item)
-    setModalIsOpened(true)
+    router.push(`warehouses/${item.id}`)
   }
 
   return (
@@ -32,16 +28,6 @@ const ItemsContainer: React.FC<WarehousesContainerProps> = ({
           onClick={() => openWarehouse(item)}
         />
       ))}
-      {modalIsOpened && currentItem && (
-        // <EditWarehouseModal
-        //   currentItem={currentItem as Warehouse}
-        //   setModalIsOpened={setModalIsOpened}
-        // />
-        <CreateWarehouseModal
-          setModalIsOpened={setModalIsOpened}
-          currentWarehouse={currentItem as Warehouse}
-        />
-      )}
     </div>
   )
 }
