@@ -2,13 +2,13 @@ import React, { ChangeEvent } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import { SelectChangeEvent, TextField } from '@mui/material'
 import MySelect from '../UI/MySelect/MySelect'
-import styles from '../products/CreateProductModal/createProductModal.module.css'
 import {
   BasicProduct,
   BasicWarehouse,
   Product,
   Warehouse,
 } from '../../assets/types'
+import styles from './productDistribution.module.css'
 
 interface ProductDistributionProps {
   currentItem: BasicProduct | BasicWarehouse
@@ -37,7 +37,7 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
     )
 
   return (
-    <div className='relative grid items-center grid-cols-2 gap-2'>
+    <div className={styles.ProductDistribution}>
       <MySelect
         currentItem={currentItem}
         list={selectListItem}
@@ -45,9 +45,7 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
       />
       <TextField
         label='Количество'
-        inputProps={{
-          min: 1,
-        }}
+        inputProps={{ min: 1 }}
         value={
           (currentItem as BasicProduct).quantity ||
           (currentItem as BasicWarehouse)?.product?.quantity
