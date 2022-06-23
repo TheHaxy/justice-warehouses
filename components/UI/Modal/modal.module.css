@@ -8,7 +8,7 @@
 
 .Modal {
     @apply relative;
-    @apply w-[34rem] h-[40rem] p-6;
+    @apply w-[40rem] p-6;
     @apply flex flex-col items-center justify-between;
     @apply rounded-lg bg-white;
 }
@@ -19,13 +19,17 @@
 }
 
 .Content {
-    @apply w-full;
+    @apply w-full mb-8;
     @apply flex flex-col gap-3;
 }
 
 .Title {
     @apply mb-6;
     @apply text-3xl;
+}
+
+.ButtonContainer {
+    @apply flex gap-3
 }
 
 .ApplyButton {

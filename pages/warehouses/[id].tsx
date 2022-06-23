@@ -1,66 +1,80 @@
-import React, { useState } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useStore } from 'effector-react'
-import { Button } from '@mui/material'
-import { $productsStorage, $warehousesStorage } from '../../model/model'
-import { BasicProduct } from '../../assets/types'
-import ProductDistribution from '../../components/ProductDistribution/ProductDistribution'
+import {
+  $warehousesStorage,
+  deleteWarehouse,
+  updateUnallocatedProductQuantity,
+} from '../../model/model'
+import { BasicWarehouse, Warehouse } from '../../assets/types'
+import ControlWarehouseButtons from '../../components/warehouses/ControlButtons/ControlWarehouseButtons'
+import SwitchCurrentContent from '../../components/warehouses/SwitchCurrentContent/SwitchCurrentContent'
+import styles from './warehousePage.module.css'
+import WarehousePageContent from '../../components/warehouses/WarehousePageContent/WarehousePageContent'
+import ItemBasicContent from '../../components/ItemBasicContent/ItemBasicContent'
+
+export type CurrentContent = 'DISTRIBUTED_PRODUCTS' | 'WAREHOUSE_MOVEMENT'
 
 const WarehousePage = () => {
   const router = useRouter()
   const warehousesStorage = useStore($warehousesStorage)
-  const productStorage = useStore($productsStorage)
-  const [currentWarehouse, setCurrentWarehouse] = useState(
-    warehousesStorage.find(
-      (warehouse) => warehouse.id === Number(router.query.id),
-    ),
+  const currentWarehouse = warehousesStorage.find(
+    (warehouse) => warehouse.id === Number(router.query.id),
+  ) as Warehouse
+  const [editedWarehouse, setEditedWarehouse] = useState(currentWarehouse)
+  const [currentContent, setCurrentContent] = useState<CurrentContent>(
+    'DISTRIBUTED_PRODUCTS',
   )
-  const [currentWarehouseProducts, setCurrentWarehouseProducts] = useState(
-    currentWarehouse?.products || [],
-  )
-  const unallocatedProducts = productStorage.filter(
-    (product) => product.unallocatedQuantity,
-  )
-  const productFieldsIsNotFilled = !!currentWarehouseProducts.find(
-    (item) => !item.id || !item.quantity,
-  )
+  const [movementWarehouses, setMovementWarehouses] = useState<
+    BasicWarehouse[]
+  >([])
+
+  const changeWarehouseName = (e: ChangeEvent<HTMLInputElement>) => {
+    setEditedWarehouse({
+      ...editedWarehouse,
+      name: e.target.value,
+    })
+  }
+
+  const deleteCurrentWarehouse = () => {
+    router.back()
+    deleteWarehouse(currentWarehouse)
+    currentWarehouse.products.forEach((product) =>
+      updateUnallocatedProductQuantity(product),
+    )
+  }
 
   return (
-    <div className='min-h-[44rem] px-12 py-8 bg-white rounded grid grid-cols-2'>
-      <div className='flex flex-col gap-8'>
-        <div className='flex items-center justify-between'>
-          <span className='text-2xl'>{currentWarehouse?.name}</span>
-          <span>
-            Общее количество товаров: {currentWarehouseProducts?.length}
-          </span>
-        </div>
-        <div className='flex flex-col gap-6'>
-          <span className='text-xl'>Распределенные продукты:</span>
-          <Button
-            variant='outlined'
-            disabled={!unallocatedProducts.length || productFieldsIsNotFilled}
-            onClick={() =>
-              currentWarehouseProducts.length < 5 &&
-              setCurrentWarehouseProducts([
-                ...currentWarehouseProducts,
-                { id: 0, quantity: 0 },
-              ])
-            }
+    <div className={styles.WarehousePage}>
+      <div className={styles.PageContent}>
+        <div className={styles.TopContent}>
+          <ItemBasicContent
+            item={editedWarehouse}
+            changeName={changeWarehouseName}
+            deleteItem={deleteCurrentWarehouse}
           >
-            Добавить продукт
-          </Button>
-          {currentWarehouseProducts?.map((product) => (
-            <ProductDistribution
-              currentItem={product}
-              selectListItem={productStorage}
-              itemStorage={currentWarehouseProducts}
-              setItemStorage={setCurrentWarehouseProducts}
-              selectChange={() => console.log(123)}
-              inputChange={() => console.log(321)}
+            <SwitchCurrentContent
+              currentContent={currentContent}
+              setCurrentContent={setCurrentContent}
             />
-          ))}
+          </ItemBasicContent>
         </div>
+        <WarehousePageContent
+          movementWarehouses={movementWarehouses}
+          setMovementWarehouses={setMovementWarehouses}
+          editedWarehouse={editedWarehouse}
+          setEditedWarehouse={setEditedWarehouse}
+          currentContent={currentContent}
+        />
       </div>
+      <ControlWarehouseButtons
+        movementWarehouses={movementWarehouses}
+        setMovementWarehouses={setMovementWarehouses}
+        currentContent={currentContent}
+        currentWarehouse={currentWarehouse}
+        editedWarehouse={editedWarehouse}
+        setEditedWarehouse={setEditedWarehouse}
+      />
     </div>
   )
 }

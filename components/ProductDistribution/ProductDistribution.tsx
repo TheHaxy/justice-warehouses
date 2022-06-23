@@ -18,8 +18,9 @@ interface ProductDistributionProps {
     | React.Dispatch<BasicProduct[]>
     | React.Dispatch<BasicWarehouse[]>
   checkProductQuantity?: () => void
-  selectChange: (e: SelectChangeEvent) => void
   inputChange: (e: ChangeEvent<HTMLInputElement>) => void
+  selectLabel?: string
+  enableQuantity?: boolean
 }
 
 const ProductDistribution: React.FC<ProductDistributionProps> = ({
@@ -28,26 +29,40 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
   itemStorage,
   setItemStorage,
   checkProductQuantity,
-  selectChange,
   inputChange,
+  selectLabel,
+  enableQuantity,
 }) => {
   const removeAddedProduct = () =>
     (setItemStorage as React.Dispatch<(BasicProduct | BasicWarehouse)[]>)(
       itemStorage.filter((item) => item.id !== currentItem.id),
     )
 
+  const changeSelectValue = (event: SelectChangeEvent) => {
+    if (itemStorage.find((item) => item.id === Number(event.target.value)))
+      return
+    setItemStorage(
+      itemStorage.map((item) => {
+        if (item.id !== currentItem.id) return item
+        return { ...item, id: Number(event.target.value) }
+      }),
+    )
+  }
+
   return (
     <div className={styles.ProductDistribution}>
       <MySelect
         currentItem={currentItem}
         list={selectListItem}
-        onChange={selectChange}
+        onChange={changeSelectValue}
+        selectLabel={selectLabel}
+        enableQuantity={enableQuantity}
       />
       <TextField
         label='Количество'
         inputProps={{ min: 1 }}
         value={
-          (currentItem as BasicProduct).quantity ||
+          (currentItem as BasicProduct)?.quantity ||
           (currentItem as BasicWarehouse)?.product?.quantity
         }
         onChange={inputChange}

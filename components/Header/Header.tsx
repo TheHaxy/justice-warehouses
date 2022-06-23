@@ -13,7 +13,7 @@ const Header = () => (
         </Link>
         <Link href='/products'>
           <button className={styles.NavButton} type='button'>
-            Товары
+            Продукты
           </button>
         </Link>
       </div>

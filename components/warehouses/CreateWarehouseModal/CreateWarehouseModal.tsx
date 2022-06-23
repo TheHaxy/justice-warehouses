@@ -1,11 +1,11 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
-import { Button, SelectChangeEvent, TextField } from '@mui/material'
+import { Button, TextField } from '@mui/material'
 import { useStore } from 'effector-react'
 import Modal from '../../UI/Modal/Modal'
 import { BasicProduct, Product, Warehouse } from '../../../assets/types'
 import {
   $productsStorage,
-  updateProductUnallocatedQuantity,
+  updateUnallocatedProductQuantity,
   updateWarehousesStorage,
 } from '../../../model/model'
 import styles from './createWarehouseModal.module.css'
@@ -42,10 +42,10 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
 
   const addNewWarehouse = () => {
     if (!newWarehouse.name || productFieldsIsNotFilled) return
-    newWarehouse.products.forEach((product) =>
-      updateProductUnallocatedQuantity(product),
-    )
     updateWarehousesStorage(newWarehouse)
+    newWarehouse.products.forEach((product) =>
+      updateUnallocatedProductQuantity(product),
+    )
     setModalIsOpened(false)
   }
 
@@ -68,7 +68,8 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
 
     if (
       !productUnallocatedQuantity ||
-      productUnallocatedQuantity > selectItem.quantity
+      productUnallocatedQuantity > selectItem.quantity ||
+      selectItem.quantity < 1
     )
       return
 
@@ -80,13 +81,13 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
     )
   }
 
-  const changeSelectValue = (event: SelectChangeEvent) => {
-    setAddedProducts(
-      addedProducts.map((item) => {
-        if (item.id !== 0) return item
-        return { ...item, id: Number(event.target.value) }
-      }),
-    )
+  const changeWarehouseName = (e: ChangeEvent<HTMLInputElement>) => {
+    setNewWarehouse({ ...newWarehouse, name: e.target.value })
+  }
+
+  const addProduct = () => {
+    if (addedProducts.length > 5) return
+    setAddedProducts([...addedProducts, { id: 0, quantity: 0 }])
   }
 
   return (
@@ -99,17 +100,12 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
         <TextField
           label='Название склада'
           value={newWarehouse.name}
-          onChange={(e) =>
-            setNewWarehouse({ ...newWarehouse, name: e.target.value })
-          }
+          onChange={changeWarehouseName}
         />
         <Button
           variant='outlined'
           disabled={!unallocatedProducts.length || productFieldsIsNotFilled}
-          onClick={() =>
-            addedProducts.length < 5 &&
-            setAddedProducts([...addedProducts, { id: 0, quantity: 0 }])
-          }
+          onClick={addProduct}
         >
           Добавить продукт
         </Button>
@@ -121,9 +117,10 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
               selectListItem={unallocatedProducts}
               itemStorage={addedProducts}
               setItemStorage={setAddedProducts}
-              selectChange={changeSelectValue}
               inputChange={(e) => updateAddedProductQuantity(e, item)}
               checkProductQuantity={() => checkProductQuantity(item)}
+              selectLabel='Продукт (нераспр. кол-во)'
+              enableQuantity
             />
           ))}
         </div>

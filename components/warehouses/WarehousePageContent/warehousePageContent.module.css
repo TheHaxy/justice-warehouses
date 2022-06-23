@@ -1,0 +1,3 @@
+.Content {
+    @apply flex pr-10 flex-col gap-6
+}
