@@ -1,0 +1,9 @@
+.ItemBasicContent {
+    @apply w-full;
+    @apply flex items-center gap-1 justify-between
+}
+
+.RouteBackButton {
+    @apply flex items-center gap-2;
+    @apply hover:cursor-pointer;
+}

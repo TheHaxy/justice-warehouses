@@ -43,7 +43,7 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
       return
     setItemStorage(
       itemStorage.map((item) => {
-        if (item.id !== 0) return item
+        if (item.id !== currentItem.id) return item
         return { ...item, id: Number(event.target.value) }
       }),
     )
@@ -62,7 +62,7 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
         label='Количество'
         inputProps={{ min: 1 }}
         value={
-          (currentItem as BasicProduct).quantity ||
+          (currentItem as BasicProduct)?.quantity ||
           (currentItem as BasicWarehouse)?.product?.quantity
         }
         onChange={inputChange}

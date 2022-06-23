@@ -14,7 +14,7 @@ const ItemsContainer: React.FC<WarehousesContainerProps> = ({
   const router = useRouter()
 
   const openWarehouse = (item: Warehouse | Product) => {
-    router.push(`warehouses/${item.id}`)
+    router.push(`${router.pathname}/${item.id}`)
   }
 
   return (

@@ -8,6 +8,8 @@ interface ModalProps {
   name: string
   setModalIsOpened: React.Dispatch<boolean>
   apply: () => void
+  cancel?: () => void
+  enableCancelButton?: boolean
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -15,6 +17,8 @@ const Modal: React.FC<ModalProps> = ({
   name,
   setModalIsOpened,
   apply,
+  cancel,
+  enableCancelButton,
 }) => (
   <div className={styles.Background}>
     <div className={styles.Modal}>
@@ -25,14 +29,26 @@ const Modal: React.FC<ModalProps> = ({
         <span className={styles.Title}>{name}</span>
         {children}
       </div>
-      <Button
-        onClick={apply}
-        variant='outlined'
-        color='success'
-        className={styles.ApplyButton}
-      >
-        Применить
-      </Button>
+      <div className={styles.ButtonContainer}>
+        <Button
+          onClick={apply}
+          variant='outlined'
+          color='success'
+          className={styles.ApplyButton}
+        >
+          Применить
+        </Button>
+        {enableCancelButton && (
+          <Button
+            onClick={cancel}
+            variant='outlined'
+            color='error'
+            className={styles.ApplyButton}
+          >
+            Отменить
+          </Button>
+        )}
+      </div>
     </div>
   </div>
 )

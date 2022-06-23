@@ -31,7 +31,7 @@ const MySelect: React.FC<MySelectProps> = ({
   <FormControl fullWidth>
     <InputLabel>{selectLabel || ''}</InputLabel>
     <Select
-      value={currentItem.id ? String(currentItem.id) : ''}
+      value={currentItem?.id ? String(currentItem.id) : ''}
       label={selectLabel || ''}
       onChange={onChange}
     >

@@ -1,12 +1,12 @@
 import React, { ChangeEvent, useState } from 'react'
-import { Button, SelectChangeEvent, TextField } from '@mui/material'
+import { Button, TextField } from '@mui/material'
 import { useStore } from 'effector-react'
 import Modal from '../../UI/Modal/Modal'
 import {
   $warehousesStorage,
+  replaceWarehousesProductsStorage,
   updateProductsStorage,
-  updateProductUnallocatedQuantity,
-  updateWarehousesProductsStorage,
+  updateUnallocatedProductQuantity,
 } from '../../../model/model'
 import { BasicWarehouse, Warehouse } from '../../../assets/types'
 import styles from './createProductModal.module.css'
@@ -37,8 +37,8 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
     if (thisProductFieldsIsNotFilled) return
     updateProductsStorage(newProduct)
     addedWarehouses.forEach((item) => {
-      updateProductUnallocatedQuantity(item.product)
-      updateWarehousesProductsStorage(item)
+      replaceWarehousesProductsStorage(item)
+      updateUnallocatedProductQuantity(item.product)
     })
     setModalIsOpened(false)
   }
@@ -66,7 +66,8 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
       !newProduct.unallocatedQuantity ||
       newProduct.unallocatedQuantity > selectItem.product.quantity
 
-    if (selectedQuantityIsMorePossible) return
+    if (selectedQuantityIsMorePossible || selectItem.product.quantity < 1)
+      return
     setAddedWarehouses(
       addedWarehouses.map((warehouse) => {
         if (warehouse.id !== selectItem.id) return warehouse
@@ -81,6 +82,30 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
     )
   }
 
+  const changeProductName = (e: ChangeEvent<HTMLInputElement>) => {
+    setNewProduct({ ...newProduct, name: e.target.value })
+  }
+
+  const changeProductQuantity = (e: ChangeEvent<HTMLInputElement>) => {
+    setNewProduct({
+      ...newProduct,
+      id: Math.random(),
+      totalQuantity: Number(e.target.value),
+      unallocatedQuantity: Number(e.target.value),
+    })
+  }
+
+  const addWarehouse = () => {
+    if (addedWarehouses.length > 5) return
+    setAddedWarehouses([
+      ...addedWarehouses,
+      {
+        id: 0,
+        product: { id: newProduct.id, quantity: 0 },
+      },
+    ])
+  }
+
   return (
     <Modal
       name='Добавить продукт'
@@ -88,38 +113,17 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
       apply={addNewProduct}
     >
       <div className={styles.ModalContent}>
-        <TextField
-          label='Название продукта'
-          onChange={(e) =>
-            setNewProduct({ ...newProduct, name: e.target.value })
-          }
-        />
+        <TextField label='Название продукта' onChange={changeProductName} />
         <TextField
           type='number'
           label='Количество'
-          inputProps={{ min: 0 }}
-          onChange={(e) =>
-            setNewProduct({
-              ...newProduct,
-              id: Math.random(),
-              totalQuantity: Number(e.target.value),
-              unallocatedQuantity: Number(e.target.value),
-            })
-          }
+          inputProps={{ min: 1 }}
+          onChange={changeProductQuantity}
         />
         <Button
           variant='outlined'
           disabled={!warehouseStorage.length || warehouseFieldsIsNotFilled}
-          onClick={() =>
-            addedWarehouses.length < 5 &&
-            setAddedWarehouses([
-              ...addedWarehouses,
-              {
-                id: 0,
-                product: { id: newProduct.id, quantity: 0 },
-              },
-            ])
-          }
+          onClick={addWarehouse}
         >
           Распределить по складам
         </Button>

@@ -1,0 +1,13 @@
+.WarehousePage {
+    @apply min-h-[44rem] px-8 py-6;
+    @apply flex flex-col justify-between;
+    @apply bg-white rounded;
+}
+
+.PageContent {
+    @apply flex flex-col gap-6
+}
+
+.TopContent {
+    @apply flex items-center gap-10
+}
