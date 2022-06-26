@@ -20,13 +20,27 @@ const WarehouseMovement: React.FC<WarehouseMovementProps> = ({
 }) => {
   const warehousesStorage = useStore($warehousesStorage)
   const productStorage = useStore($productsStorage)
-  const [currentProduct, setCurrentProduct] = useState({})
+  const [selectedWarehouse, setSelectedWarehouse] = useState(currentWarehouse)
+  const [currentProduct, setCurrentProduct] = useState(
+    productStorage.find(
+      (product) => product.id === selectedWarehouse.product.id,
+    ) as Product,
+  )
   const [fullProductsInfo, setFullProductsInfo] = useState<Product[]>([])
+
+  useEffect(() => {
+    setMovementWarehouses(
+      movementWarehouses.map((warehouse) => {
+        if (warehouse.id !== currentWarehouse.id) return warehouse
+        return selectedWarehouse
+      }),
+    )
+  }, [selectedWarehouse.product])
 
   useEffect(() => {
     setCurrentProduct(
       productStorage.find(
-        (product) => product.id === currentWarehouse.product.id,
+        (product) => product.id === selectedWarehouse.product.id,
       ) as Product,
     )
   }, [currentWarehouse])
@@ -40,32 +54,25 @@ const WarehouseMovement: React.FC<WarehouseMovementProps> = ({
     )
   }, [productList])
 
-  const selectProduct = (e: SelectChangeEvent) => {
-    setMovementWarehouses(
-      movementWarehouses.map((warehouse) => {
-        if (warehouse.product.id !== 0) return warehouse
-        return {
-          ...warehouse,
-          product: { ...warehouse.product, id: Number(e.target.value) },
-        }
-      }),
-    )
+  const updateProductQuantity = (e: ChangeEvent<HTMLInputElement>) => {
+    setSelectedWarehouse({
+      ...selectedWarehouse,
+      product: {
+        ...selectedWarehouse.product,
+        quantity: Number(e.target.value),
+      },
+    })
   }
 
-  const updateProductQuantity = (e: ChangeEvent<HTMLInputElement>) => {
-    setMovementWarehouses(
-      movementWarehouses.map((warehouse) => {
-        if (warehouse.product.id !== (currentProduct as Product)?.id)
-          return warehouse
-        return {
-          ...warehouse,
-          product: { ...warehouse.product, quantity: Number(e.target.value) },
-        }
-      }),
-    )
+  const selectProduct = (e: SelectChangeEvent) => {
+    setSelectedWarehouse({
+      ...selectedWarehouse,
+      product: { ...selectedWarehouse.product, id: Number(e.target.value) },
+    })
   }
 
   const selectWarehouse = (e: SelectChangeEvent) => {
+    setSelectedWarehouse({ ...selectedWarehouse, id: Number(e.target.value) })
     setMovementWarehouses(
       movementWarehouses.map((warehouse) => {
         if (warehouse.id !== 0) return warehouse
@@ -77,16 +84,16 @@ const WarehouseMovement: React.FC<WarehouseMovementProps> = ({
   return (
     <div className='grid grid-cols-3 gap-2'>
       <MySelect
-        list={fullProductsInfo}
-        currentItem={currentProduct as BasicProduct}
-        selectLabel='Продукт'
-        onChange={selectProduct}
-      />
-      <MySelect
         list={warehousesStorage}
-        currentItem={currentWarehouse}
+        currentItem={selectedWarehouse}
         selectLabel='Склад'
         onChange={selectWarehouse}
+      />
+      <MySelect
+        list={fullProductsInfo}
+        currentItem={currentProduct}
+        selectLabel='Продукт'
+        onChange={selectProduct}
       />
       <TextField
         label='Количество'

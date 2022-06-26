@@ -13,7 +13,7 @@ import { BasicWarehouse, Product } from '../../assets/types'
 import ItemBasicContent from '../../components/ItemBasicContent/ItemBasicContent'
 import ControlProductButtons from '../../components/warehouses/ControlButtons/ControlProductButtons'
 import ProductDistribution from '../../components/ProductDistribution/ProductDistribution'
-import { findCurrentProduct } from '../../assets/utils'
+import { calcDistributedQuantity, findCurrentProduct } from '../../assets/utils'
 import Modal from '../../components/UI/Modal/Modal'
 
 const ProductPage = () => {
@@ -23,6 +23,7 @@ const ProductPage = () => {
   const currentProduct = productStorage.find(
     (product) => product.id === Number(router.query.id),
   ) as Product
+  const [modalIsOpened, setModalIsOpened] = useState(false)
   const [editedProduct, setEditedProduct] = useState(currentProduct)
   const productDistributedWarehouses = warehousesStorage.filter((warehouse) =>
     findCurrentProduct(warehouse, currentProduct),
@@ -77,7 +78,28 @@ const ProductPage = () => {
     deleteProduct(currentProduct)
   }
 
-  const [modalIsOpened, setModalIsOpened] = useState(false)
+  const checkDistributedQuantity = (currentItem: BasicWarehouse) => {
+    const unallocatedQuantity =
+      editedProduct.totalQuantity - calcDistributedQuantity(warehousesList)
+    if (unallocatedQuantity >= 0) {
+      setEditedProduct({ ...editedProduct, unallocatedQuantity })
+      return
+    }
+    setWarehousesList(
+      warehousesList.map((warehouse) => {
+        if (warehouse.id !== currentItem.id) return warehouse
+        return {
+          ...warehouse,
+          product: {
+            ...warehouse.product,
+            quantity:
+              editedProduct.totalQuantity -
+              calcDistributedQuantity(warehousesList, currentItem),
+          },
+        }
+      }),
+    )
+  }
 
   return (
     <div className={styles.productPage}>
@@ -108,7 +130,7 @@ const ProductPage = () => {
               value={editedProduct.totalQuantity}
               onChange={changeProductTotalQuantity}
             />
-            <span>Нераспределено: {currentProduct?.unallocatedQuantity}</span>
+            <span>Нераспределено: {editedProduct?.unallocatedQuantity}</span>
           </ItemBasicContent>
         </div>
         <div className='pr-10 flex flex-col gap-6'>
@@ -120,6 +142,7 @@ const ProductPage = () => {
               selectListItem={warehousesStorage}
               itemStorage={warehousesList}
               setItemStorage={setWarehousesList}
+              blurInput={() => checkDistributedQuantity(warehouse)}
               inputChange={(e) =>
                 updateProductDistributedWarehouseQuantity(e, warehouse)
               }
@@ -133,6 +156,7 @@ const ProductPage = () => {
         setEditedProduct={setEditedProduct}
         warehousesList={warehousesList}
         setWarehousesList={setWarehousesList}
+        productDistributedWarehouses={productDistributedWarehouses}
       />
     </div>
   )

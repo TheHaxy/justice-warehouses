@@ -39,11 +39,15 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
   )
 
   useEffect(() => {
+    setCurrentWarehouseProducts(currentWarehouse?.products)
+  }, [currentWarehouse])
+
+  useEffect(() => {
     setEditedWarehouse({
       ...editedWarehouse,
       products: currentWarehouseProducts,
     })
-  }, [currentWarehouse?.products])
+  }, [currentWarehouseProducts])
 
   const updateWarehouseValue = () => {
     updateWarehouse({

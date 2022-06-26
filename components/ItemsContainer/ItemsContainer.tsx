@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import EntityCard from '../EntityCard/EntityCard'
+import ItemCard from '../ItemCard/ItemCard'
 import { Product, Warehouse } from '../../assets/types'
 import styles from './itemsContainer.module.css'
 
@@ -20,7 +20,7 @@ const ItemsContainer: React.FC<WarehousesContainerProps> = ({
   return (
     <div className={styles.ItemsContainer}>
       {itemsStorage.map((item) => (
-        <EntityCard
+        <ItemCard
           key={item.id}
           name={item.name}
           totalQuantity={(item as Product).totalQuantity}
