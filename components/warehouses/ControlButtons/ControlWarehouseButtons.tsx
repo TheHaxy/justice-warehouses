@@ -34,7 +34,7 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
   const unallocatedProducts = productStorage.filter(
     (product) => product.unallocatedQuantity,
   )
-  const productFieldsIsNotFilled = !!currentWarehouseProducts.find(
+  const productFieldsIsNotFilled = !!currentWarehouseProducts?.find(
     (item) => !item.id || !item.quantity,
   )
 

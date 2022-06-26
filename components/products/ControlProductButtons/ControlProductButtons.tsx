@@ -72,6 +72,7 @@ const ControlProductButtons: React.FC<ControlButtonsProps> = ({
       </Button>
       <Button
         className='max-w-[20rem]'
+        disabled={!editedProduct?.unallocatedQuantity}
         variant='outlined'
         onClick={addWarehouse}
       >

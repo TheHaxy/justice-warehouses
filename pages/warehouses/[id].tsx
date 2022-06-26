@@ -46,7 +46,7 @@ const WarehousePage = () => {
     })
   }
 
-  const deleteCurrentWarehouse = () => {
+  const deleteCurrentWarehouse = async () => {
     router.back()
     deleteWarehouse(currentWarehouse)
     currentWarehouse.products.forEach((product) =>

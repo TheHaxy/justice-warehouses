@@ -41,7 +41,7 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
   const changeSelectValue = (event: SelectChangeEvent) => {
     if (itemStorage.find((item) => item.id === Number(event.target.value)))
       return
-    setItemStorage(
+    ;(setItemStorage as React.Dispatch<(BasicProduct | BasicWarehouse)[]>)(
       itemStorage.map((item) => {
         if (item.id !== 0) return item
         return { ...item, id: Number(event.target.value) }

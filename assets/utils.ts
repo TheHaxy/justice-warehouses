@@ -11,7 +11,7 @@ export const voidProduct = {
 export const findCurrentProduct = (
   warehouse: Warehouse,
   currProduct: Product,
-) => warehouse.products.find((product) => product.id === currProduct.id)
+) => warehouse.products.find((product) => product.id === currProduct?.id)
 
 export const calcDistributedQuantity = (
   storage: BasicWarehouse[],
