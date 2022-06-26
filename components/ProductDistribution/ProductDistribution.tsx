@@ -17,7 +17,7 @@ interface ProductDistributionProps {
   setItemStorage:
     | React.Dispatch<BasicProduct[]>
     | React.Dispatch<BasicWarehouse[]>
-  checkProductQuantity?: () => void
+  blurInput?: () => void
   inputChange: (e: ChangeEvent<HTMLInputElement>) => void
   selectLabel?: string
   enableQuantity?: boolean
@@ -28,7 +28,7 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
   selectListItem,
   itemStorage,
   setItemStorage,
-  checkProductQuantity,
+  blurInput,
   inputChange,
   selectLabel,
   enableQuantity,
@@ -43,7 +43,7 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
       return
     setItemStorage(
       itemStorage.map((item) => {
-        if (item.id !== currentItem.id) return item
+        if (item.id !== 0) return item
         return { ...item, id: Number(event.target.value) }
       }),
     )
@@ -66,7 +66,7 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
           (currentItem as BasicWarehouse)?.product?.quantity
         }
         onChange={inputChange}
-        onBlur={checkProductQuantity}
+        onBlur={blurInput}
       />
       <div className={styles.CloseIcon} onClick={removeAddedProduct}>
         <CloseIcon fontSize='small' />

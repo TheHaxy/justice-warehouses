@@ -15,7 +15,7 @@ import {
 
 interface MySelectProps {
   list: (Product | Warehouse)[]
-  currentItem: BasicProduct | BasicWarehouse
+  currentItem: BasicProduct | BasicWarehouse | Product | Warehouse
   onChange: (e: SelectChangeEvent) => void
   selectLabel?: string
   enableQuantity?: boolean

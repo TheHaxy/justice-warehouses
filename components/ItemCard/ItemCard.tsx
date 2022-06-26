@@ -7,7 +7,7 @@ interface EntityCardProps {
   unallocatedQuantity?: number
 }
 
-const EntityCard: React.FC<EntityCardProps> = ({
+const ItemCard: React.FC<EntityCardProps> = ({
   name,
   onClick,
   totalQuantity,
@@ -29,4 +29,4 @@ const EntityCard: React.FC<EntityCardProps> = ({
   </div>
 )
 
-export default EntityCard
+export default ItemCard

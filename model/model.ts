@@ -6,6 +6,7 @@ import {
   Product,
   Warehouse,
 } from '../assets/types'
+import { calcUnallocatedQuantity } from '../assets/utils'
 
 export const updateWarehousesStorage = createEvent<Warehouse>()
 export const updateWarehouse = createEvent<Warehouse>()
@@ -64,24 +65,7 @@ export const $productsStorage = createStore<Product[]>([])
   .on(updateUnallocatedProductQuantity, (state, msg) =>
     state.map((product) => {
       if (product.id !== msg.id) return product
-      let quantityCounter = 0
-      const distributedQuantity = $warehousesStorage
-        .getState()
-        .map((warehouse) => {
-          const thisProduct = warehouse.products.find(
-            (item) => item.id === product.id,
-          )
-          if (!thisProduct) return quantityCounter
-          quantityCounter += thisProduct.quantity
-          return quantityCounter
-        })
-        .reverse()[0]
-      return {
-        ...product,
-        unallocatedQuantity: distributedQuantity
-          ? product.totalQuantity - distributedQuantity
-          : product.totalQuantity,
-      }
+      return calcUnallocatedQuantity(product)
     }),
   )
   .on(updateProduct, (state, msg) =>
@@ -95,13 +79,13 @@ export const $productsStorage = createStore<Product[]>([])
   )
 
 persist({
-  source: $warehousesStorage || [],
+  source: $warehousesStorage,
   target: $warehousesStorage,
   key: 'WAREHOUSES_STORAGE',
 })
 
 persist({
-  source: $productsStorage || [],
+  source: $productsStorage,
   target: $productsStorage,
   key: 'PRODUCT_STORAGE',
 })

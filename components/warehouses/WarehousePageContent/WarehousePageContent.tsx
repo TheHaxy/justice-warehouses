@@ -51,7 +51,7 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
       {currentContent === 'DISTRIBUTED_PRODUCTS' && (
         <>
           <span className='text-xl'>Распределенные продукты:</span>
-          {currentWarehouseProducts?.map((product) => (
+          {editedWarehouse.products?.map((product) => (
             <ProductDistribution
               currentItem={product}
               selectListItem={productStorage}

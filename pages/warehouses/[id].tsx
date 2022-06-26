@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useStore } from 'effector-react'
 import {
@@ -12,6 +12,7 @@ import SwitchCurrentContent from '../../components/warehouses/SwitchCurrentConte
 import styles from './warehousePage.module.css'
 import WarehousePageContent from '../../components/warehouses/WarehousePageContent/WarehousePageContent'
 import ItemBasicContent from '../../components/ItemBasicContent/ItemBasicContent'
+import Modal from '../../components/UI/Modal/Modal'
 
 export type CurrentContent = 'DISTRIBUTED_PRODUCTS' | 'WAREHOUSE_MOVEMENT'
 
@@ -21,6 +22,7 @@ const WarehousePage = () => {
   const currentWarehouse = warehousesStorage.find(
     (warehouse) => warehouse.id === Number(router.query.id),
   ) as Warehouse
+  const [modalIsOpened, setModalIsOpened] = useState(false)
   const [editedWarehouse, setEditedWarehouse] = useState(currentWarehouse)
   const [currentContent, setCurrentContent] = useState<CurrentContent>(
     'DISTRIBUTED_PRODUCTS',
@@ -28,6 +30,14 @@ const WarehousePage = () => {
   const [movementWarehouses, setMovementWarehouses] = useState<
     BasicWarehouse[]
   >([])
+
+  useEffect(() => {
+    setEditedWarehouse(
+      warehousesStorage.find(
+        (warehouse) => warehouse.id === Number(router.query.id),
+      ) as Warehouse,
+    )
+  }, [warehousesStorage])
 
   const changeWarehouseName = (e: ChangeEvent<HTMLInputElement>) => {
     setEditedWarehouse({
@@ -46,12 +56,26 @@ const WarehousePage = () => {
 
   return (
     <div className={styles.WarehousePage}>
+      {modalIsOpened && (
+        <Modal
+          name='Внимание!'
+          setModalIsOpened={setModalIsOpened}
+          apply={deleteCurrentWarehouse}
+          cancel={() => setModalIsOpened(false)}
+          enableCancelButton
+        >
+          <span>
+            При удалении склада все продукты попадут в нераспределенное
+            хранилище. Вы действительно хотите сделать это?
+          </span>
+        </Modal>
+      )}
       <div className={styles.PageContent}>
         <div className={styles.TopContent}>
           <ItemBasicContent
             item={editedWarehouse}
             changeName={changeWarehouseName}
-            deleteItem={deleteCurrentWarehouse}
+            deleteItem={() => setModalIsOpened(true)}
           >
             <SwitchCurrentContent
               currentContent={currentContent}

@@ -118,7 +118,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
               itemStorage={addedProducts}
               setItemStorage={setAddedProducts}
               inputChange={(e) => updateAddedProductQuantity(e, item)}
-              checkProductQuantity={() => checkProductQuantity(item)}
+              blurInput={() => checkProductQuantity(item)}
               selectLabel='Продукт (нераспр. кол-во)'
               enableQuantity
             />

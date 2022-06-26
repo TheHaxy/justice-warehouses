@@ -1,10 +1,11 @@
 import React from 'react'
 import { Button } from '@mui/material'
-import { BasicWarehouse, Product } from '../../../assets/types'
+import { BasicWarehouse, Product, Warehouse } from '../../../assets/types'
 import {
   replaceWarehousesProductsStorage,
   updateProduct,
   updateUnallocatedProductQuantity,
+  updateWarehouse,
 } from '../../../model/model'
 
 interface ControlButtonsProps {
@@ -13,6 +14,7 @@ interface ControlButtonsProps {
   setEditedProduct: React.Dispatch<Product>
   warehousesList: BasicWarehouse[]
   setWarehousesList: React.Dispatch<BasicWarehouse[]>
+  productDistributedWarehouses: Warehouse[]
 }
 
 const ControlProductButtons: React.FC<ControlButtonsProps> = ({
@@ -21,11 +23,20 @@ const ControlProductButtons: React.FC<ControlButtonsProps> = ({
   setEditedProduct,
   warehousesList,
   setWarehousesList,
+  productDistributedWarehouses,
 }) => {
   const updateProductValue = () => {
     updateProduct(editedProduct)
     warehousesList.forEach((warehouse) => {
       replaceWarehousesProductsStorage(warehouse)
+    })
+    productDistributedWarehouses.forEach((warehouse) => {
+      if (!warehousesList.find((item) => item.id === warehouse.id)) {
+        const newProductList = warehouse.products.filter(
+          (product) => product.id !== currentProduct.id,
+        )
+        updateWarehouse({ ...warehouse, products: newProductList })
+      }
     })
     updateUnallocatedProductQuantity(editedProduct)
   }
