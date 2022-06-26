@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useStore } from 'effector-react'
 import { TextField } from '@mui/material'
@@ -11,7 +11,7 @@ import {
 } from '../../model/model'
 import { BasicWarehouse, Product } from '../../assets/types'
 import ItemBasicContent from '../../components/ItemBasicContent/ItemBasicContent'
-import ControlProductButtons from '../../components/warehouses/ControlButtons/ControlProductButtons'
+import ControlProductButtons from '../../components/products/ControlProductButtons/ControlProductButtons'
 import ProductDistribution from '../../components/ProductDistribution/ProductDistribution'
 import { calcDistributedQuantity, findCurrentProduct } from '../../assets/utils'
 import Modal from '../../components/UI/Modal/Modal'
@@ -37,6 +37,10 @@ const ProductPage = () => {
       }
     }) as BasicWarehouse[],
   )
+
+  useEffect(() => {
+    setEditedProduct(currentProduct)
+  }, [currentProduct])
 
   const changeProductName = (e: ChangeEvent<HTMLInputElement>) => {
     setEditedProduct({ ...editedProduct, name: e.target.value })
@@ -127,7 +131,7 @@ const ProductPage = () => {
             <TextField
               type='number'
               label='Общее количество'
-              value={editedProduct.totalQuantity}
+              value={editedProduct?.totalQuantity}
               onChange={changeProductTotalQuantity}
             />
             <span>Нераспределено: {editedProduct?.unallocatedQuantity}</span>

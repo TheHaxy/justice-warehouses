@@ -24,7 +24,7 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
 }) => {
   const productStorage = useStore($productsStorage)
   const [currentWarehouseProducts, setCurrentWarehouseProducts] = useState(
-    editedWarehouse.products,
+    editedWarehouse?.products,
   )
 
   useEffect(() => {
@@ -51,8 +51,9 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
       {currentContent === 'DISTRIBUTED_PRODUCTS' && (
         <>
           <span className='text-xl'>Распределенные продукты:</span>
-          {editedWarehouse.products?.map((product) => (
+          {editedWarehouse?.products?.map((product) => (
             <ProductDistribution
+              key={product.id}
               currentItem={product}
               selectListItem={productStorage}
               itemStorage={currentWarehouseProducts}
@@ -67,6 +68,7 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
           <span className='text-xl'>Перемещение по складам:</span>
           {movementWarehouses?.map((warehouse) => (
             <WarehouseMovement
+              key={warehouse.id}
               movementWarehouses={movementWarehouses}
               setMovementWarehouses={setMovementWarehouses}
               currentWarehouse={warehouse}

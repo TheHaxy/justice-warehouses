@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SelectChangeEvent, TextField } from '@mui/material'
 import { useStore } from 'effector-react'
 import { BasicProduct, BasicWarehouse, Product } from '../../../assets/types'
@@ -54,12 +54,12 @@ const WarehouseMovement: React.FC<WarehouseMovementProps> = ({
     )
   }, [productList])
 
-  const updateProductQuantity = (e: ChangeEvent<HTMLInputElement>) => {
+  const updateProductQuantity = (quantity: string | number) => {
     setSelectedWarehouse({
       ...selectedWarehouse,
       product: {
         ...selectedWarehouse.product,
-        quantity: Number(e.target.value),
+        quantity: Number(quantity),
       },
     })
   }
@@ -81,6 +81,15 @@ const WarehouseMovement: React.FC<WarehouseMovementProps> = ({
     )
   }
 
+  const checkDistributedQuantity = () => {
+    const thisProductUnallocatedQuantity =
+      productList.find((product) => product.id === currentProduct.id)
+        ?.quantity || 0
+    if (thisProductUnallocatedQuantity > selectedWarehouse.product.quantity)
+      return
+    updateProductQuantity(thisProductUnallocatedQuantity)
+  }
+
   return (
     <div className='grid grid-cols-3 gap-2'>
       <MySelect
@@ -97,8 +106,10 @@ const WarehouseMovement: React.FC<WarehouseMovementProps> = ({
       />
       <TextField
         label='Количество'
+        value={currentWarehouse.product.quantity}
         inputProps={{ min: 1 }}
-        onChange={updateProductQuantity}
+        onBlur={checkDistributedQuantity}
+        onChange={(e) => updateProductQuantity(e.target.value)}
       />
     </div>
   )
