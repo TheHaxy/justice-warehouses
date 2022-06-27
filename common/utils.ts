@@ -17,7 +17,7 @@ export const voidWarehouse = {
 export const findCurrentItem = (
   storage: { id: number | string }[],
   item: { id: number | string },
-) => storage.find((product) => Number(product.id) === Number(item.id))
+) => storage?.find((product) => Number(product?.id) === Number(item?.id))
 
 export const calcDistributedQuantity = (
   storage: BasicWarehouse[],
