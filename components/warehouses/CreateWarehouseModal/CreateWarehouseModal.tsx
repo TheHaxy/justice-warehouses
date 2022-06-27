@@ -1,8 +1,8 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { Button, TextField } from '@mui/material'
 import { useStore } from 'effector-react'
 import Modal from '../../UI/Modal/Modal'
-import { BasicProduct, Product, Warehouse } from '../../../assets/types'
+import { BasicProduct, Product, Warehouse } from '../../../common/types'
 import {
   $productsStorage,
   updateUnallocatedProductQuantity,
@@ -31,6 +31,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
   const productFieldsIsNotFilled = !!addedProducts.find(
     (item) => !item.id || !item.quantity,
   )
+  const formNotReady = !unallocatedProducts.length || productFieldsIsNotFilled
 
   useEffect(() => {
     const productsList = addedProducts.map((item) => item)
@@ -40,55 +41,64 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
     })
   }, [addedProducts])
 
-  const addNewWarehouse = () => {
+  const addNewWarehouse = useCallback(() => {
     if (!newWarehouse.name || productFieldsIsNotFilled) return
     updateWarehousesStorage(newWarehouse)
     newWarehouse.products.forEach((product) =>
       updateUnallocatedProductQuantity(product),
     )
     setModalIsOpened(false)
-  }
+  }, [newWarehouse])
 
-  const updateAddedProductQuantity = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    selectItem: BasicProduct,
-  ) => {
-    setAddedProducts(
-      addedProducts.map((item) => {
-        if (item.id !== selectItem.id) return item
-        return { ...item, quantity: Number(e.target.value) }
-      }),
-    )
-  }
+  const updateAddedProductQuantity = useCallback(
+    (
+      e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+      selectItem: BasicProduct,
+    ) => {
+      setAddedProducts(
+        addedProducts.map((item) => {
+          if (item.id !== selectItem.id) return item
+          return { ...item, quantity: Number(e.target.value) }
+        }),
+      )
+    },
+    [addedProducts],
+  )
 
-  const checkProductQuantity = (selectItem: BasicProduct) => {
-    const productUnallocatedQuantity = productStorage.find(
-      (product) => +product.id === +selectItem.id,
-    )?.unallocatedQuantity
+  const checkProductQuantity = useCallback(
+    (selectItem: BasicProduct) => {
+      const productUnallocatedQuantity = productStorage.find(
+        (product) => +product.id === +selectItem.id,
+      )?.unallocatedQuantity
 
-    if (
-      !productUnallocatedQuantity ||
-      productUnallocatedQuantity > selectItem.quantity ||
-      selectItem.quantity < 1
-    )
-      return
+      const enoughUnallocatedQuantity =
+        !productUnallocatedQuantity ||
+        productUnallocatedQuantity > selectItem.quantity ||
+        selectItem.quantity < 1
 
-    setAddedProducts(
-      addedProducts.map((el) => {
-        if (el.id !== selectItem.id) return el
-        return { ...el, quantity: +productUnallocatedQuantity }
-      }),
-    )
-  }
+      if (enoughUnallocatedQuantity) return
 
-  const changeWarehouseName = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewWarehouse({ ...newWarehouse, name: e.target.value })
-  }
+      setAddedProducts(
+        addedProducts.map((el) => {
+          if (el.id !== selectItem.id) return el
+          return { ...el, quantity: Number(productUnallocatedQuantity) }
+        }),
+      )
+    },
+    [addedProducts],
+  )
 
-  const addProduct = () => {
+  const changeWarehouseName = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setNewWarehouse({ ...newWarehouse, name: e.target.value })
+    },
+    [newWarehouse],
+  )
+
+  const addProduct = useCallback(() => {
     if (addedProducts.length > 5) return
     setAddedProducts([...addedProducts, { id: 0, quantity: 0 }])
-  }
+  }, [addedProducts])
 
   return (
     <Modal
@@ -102,11 +112,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
           value={newWarehouse.name}
           onChange={changeWarehouseName}
         />
-        <Button
-          variant='outlined'
-          disabled={!unallocatedProducts.length || productFieldsIsNotFilled}
-          onClick={addProduct}
-        >
+        <Button variant='outlined' disabled={formNotReady} onClick={addProduct}>
           Добавить продукт
         </Button>
         <div className={styles.AddedProductsContainer}>

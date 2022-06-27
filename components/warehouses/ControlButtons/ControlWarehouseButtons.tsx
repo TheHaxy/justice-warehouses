@@ -1,14 +1,21 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Button } from '@mui/material'
 import { useStore } from 'effector-react'
-import { BasicWarehouse, Warehouse } from '../../../assets/types'
+import {
+  BasicWarehouse,
+  CurrentContent,
+  Warehouse,
+} from '../../../common/types'
 import {
   $productsStorage,
   updateUnallocatedProductQuantity,
   updateWarehouse,
   updateWarehousesProductsStorage,
 } from '../../../model/model'
-import { CurrentContent } from '../../../pages/warehouses/[id]'
+import {
+  DISTRIBUTED_PRODUCTS,
+  WAREHOUSE_MOVEMENT,
+} from '../../../common/constants'
 
 interface ControlButtonsProps {
   movementWarehouses: BasicWarehouse[]
@@ -27,6 +34,8 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
   editedWarehouse,
   setEditedWarehouse,
 }) => {
+  const itsDistributedProducts = currentContent === DISTRIBUTED_PRODUCTS
+  const itsWarehouseMovement = currentContent === WAREHOUSE_MOVEMENT
   const productStorage = useStore($productsStorage)
   const [currentWarehouseProducts, setCurrentWarehouseProducts] = useState(
     currentWarehouse?.products,
@@ -37,6 +46,7 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
   const productFieldsIsNotFilled = !!currentWarehouseProducts?.find(
     (item) => !item.id || !item.quantity,
   )
+  const formNotReady = !unallocatedProducts.length || productFieldsIsNotFilled
 
   useEffect(() => {
     setCurrentWarehouseProducts(currentWarehouse?.products)
@@ -49,7 +59,7 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
     })
   }, [currentWarehouseProducts])
 
-  const updateWarehouseValue = () => {
+  const updateWarehouseValue = useCallback(() => {
     updateWarehouse({
       ...editedWarehouse,
       products: editedWarehouse.products.map((product) => {
@@ -70,28 +80,28 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
       updateUnallocatedProductQuantity(product)
     })
     setMovementWarehouses([])
-  }
+  }, [editedWarehouse, productStorage])
 
-  const resetWarehouseChanges = () => {
+  const resetWarehouseChanges = useCallback(() => {
     setEditedWarehouse(JSON.parse(JSON.stringify(currentWarehouse)))
     setMovementWarehouses([])
-  }
+  }, [currentWarehouse])
 
-  const addProduct = () => {
+  const addProduct = useCallback(() => {
     if (currentWarehouseProducts.length > 5) return
     setCurrentWarehouseProducts([
       ...currentWarehouseProducts,
       { id: 0, quantity: 0 },
     ])
-  }
+  }, [currentWarehouseProducts])
 
-  const addMovementProduct = () => {
+  const addMovementProduct = useCallback(() => {
     if (!movementWarehouses || !setMovementWarehouses) return
     setMovementWarehouses([
       ...movementWarehouses,
       { id: 0, product: { id: 0, quantity: 0 } },
     ])
-  }
+  }, [movementWarehouses])
 
   return (
     <div className='flex gap-4'>
@@ -111,17 +121,17 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
       >
         Отменить
       </Button>
-      {currentContent === 'DISTRIBUTED_PRODUCTS' && (
+      {itsDistributedProducts && (
         <Button
           className='max-w-[20rem]'
           variant='outlined'
-          disabled={!unallocatedProducts.length || productFieldsIsNotFilled}
+          disabled={formNotReady}
           onClick={addProduct}
         >
           Добавить продукт
         </Button>
       )}
-      {currentContent === 'WAREHOUSE_MOVEMENT' && (
+      {itsWarehouseMovement && (
         <Button
           className='max-w-[20rem]'
           variant='outlined'

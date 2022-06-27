@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { Button, TextField } from '@mui/material'
 import { useStore } from 'effector-react'
 import Modal from '../../UI/Modal/Modal'
@@ -8,10 +8,10 @@ import {
   updateProductsStorage,
   updateUnallocatedProductQuantity,
 } from '../../../model/model'
-import { BasicWarehouse, Warehouse } from '../../../assets/types'
+import { BasicWarehouse, Warehouse } from '../../../common/types'
 import styles from './createProductModal.module.css'
 import ProductDistribution from '../../ProductDistribution/ProductDistribution'
-import { calcDistributedQuantity, voidProduct } from '../../../assets/utils'
+import { calcDistributedQuantity, voidProduct } from '../../../common/utils'
 
 interface CreateProductModalProps {
   setModalIsOpened: React.Dispatch<boolean>
@@ -38,7 +38,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
     })
   }, [addedWarehouses.length])
 
-  const addNewProduct = () => {
+  const addNewProduct = useCallback(() => {
     if (thisProductFieldsIsNotFilled) return
     updateProductsStorage(newProduct)
     addedWarehouses.forEach((item) => {
@@ -46,55 +46,64 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
       updateUnallocatedProductQuantity(item.product)
     })
     setModalIsOpened(false)
-  }
+  }, [newProduct, addedWarehouses])
 
-  const updateWarehousesProductQuantity = (
-    newQuantity: string | number,
-    selectItem: BasicWarehouse,
-  ) => {
-    setAddedWarehouses(
-      addedWarehouses.map((item) => {
-        if (item.id !== selectItem.id) return item
-        return {
-          ...item,
-          product: {
-            ...item.product,
-            quantity: Number(newQuantity),
-          },
-        }
-      }),
-    )
-  }
+  const updateWarehousesProductQuantity = useCallback(
+    (newQuantity: string | number, selectItem: BasicWarehouse) => {
+      setAddedWarehouses(
+        addedWarehouses.map((item) => {
+          if (item.id !== selectItem.id) return item
+          return {
+            ...item,
+            product: {
+              ...item.product,
+              quantity: Number(newQuantity),
+            },
+          }
+        }),
+      )
+    },
+    [addedWarehouses],
+  )
 
-  const checkProductQuantity = (selectItem: BasicWarehouse) => {
-    const unallocatedQuantity =
-      newProduct.totalQuantity - calcDistributedQuantity(addedWarehouses)
-    if (unallocatedQuantity >= 0) {
-      setNewProduct({ ...newProduct, unallocatedQuantity })
-      return
-    }
-    if (!selectItem.product.quantity) return
-    const thisWarehouseProductQuantity =
-      newProduct.totalQuantity -
-      calcDistributedQuantity(addedWarehouses, selectItem)
-    updateWarehousesProductQuantity(thisWarehouseProductQuantity, selectItem)
-  }
+  const checkProductQuantity = useCallback(
+    (selectItem: BasicWarehouse) => {
+      const unallocatedQuantity =
+        newProduct.totalQuantity - calcDistributedQuantity(addedWarehouses)
+      if (unallocatedQuantity >= 0) {
+        setNewProduct({ ...newProduct, unallocatedQuantity })
+        return
+      }
+      if (!selectItem.product.quantity) return
+      const thisWarehouseProductQuantity =
+        newProduct.totalQuantity -
+        calcDistributedQuantity(addedWarehouses, selectItem)
+      updateWarehousesProductQuantity(thisWarehouseProductQuantity, selectItem)
+    },
+    [newProduct, addedWarehouses],
+  )
 
-  const changeProductName = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewProduct({ ...newProduct, name: e.target.value })
-  }
+  const changeProductName = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setNewProduct({ ...newProduct, name: e.target.value })
+    },
+    [newProduct],
+  )
 
-  const changeProductQuantity = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewProduct({
-      ...newProduct,
-      id: Math.random(),
-      totalQuantity: Number(e.target.value),
-      unallocatedQuantity:
-        Number(e.target.value) - calcDistributedQuantity(addedWarehouses),
-    })
-  }
+  const changeProductQuantity = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setNewProduct({
+        ...newProduct,
+        id: Math.random(),
+        totalQuantity: Number(e.target.value),
+        unallocatedQuantity:
+          Number(e.target.value) - calcDistributedQuantity(addedWarehouses),
+      })
+    },
+    [newProduct, addedWarehouses],
+  )
 
-  const addWarehouse = () => {
+  const addWarehouse = useCallback(() => {
     if (addedWarehouses.length > 5) return
     setAddedWarehouses([
       ...addedWarehouses,
@@ -103,7 +112,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
         product: { id: newProduct.id, quantity: 0 },
       },
     ])
-  }
+  }, [addedWarehouses, newProduct])
 
   return (
     <Modal

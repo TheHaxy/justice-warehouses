@@ -1,4 +1,5 @@
 import React from 'react'
+import styles from './ItemCard.module.css'
 
 interface EntityCardProps {
   name: string
@@ -12,21 +13,21 @@ const ItemCard: React.FC<EntityCardProps> = ({
   onClick,
   totalQuantity,
   unallocatedQuantity,
-}) => (
-  <div
-    className='p-8 flex items-center gap-12 bg-white rounded-lg hover: cursor-pointer'
-    onClick={onClick}
-  >
-    <span className='text-lg'>{name}</span>
-    <div className='flex gap-8'>
-      {(totalQuantity || totalQuantity === 0) && (
-        <span>Общее количество: {totalQuantity}</span>
-      )}
-      {(unallocatedQuantity || unallocatedQuantity === 0) && (
-        <span>Нераспределено: {unallocatedQuantity}</span>
-      )}
+}) => {
+  const totalQuantityExists = totalQuantity && totalQuantity >= 0
+  const unallocatedQuantityExists =
+    unallocatedQuantity && unallocatedQuantity >= 0
+  return (
+    <div className={styles.Item} onClick={onClick}>
+      <span className='text-lg'>{name}</span>
+      <div className={styles.QuantityContainer}>
+        {totalQuantityExists && <span>Общее количество: {totalQuantity}</span>}
+        {unallocatedQuantityExists && (
+          <span>Нераспределено: {unallocatedQuantity}</span>
+        )}
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 export default ItemCard

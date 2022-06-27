@@ -1,3 +1,5 @@
+import { DISTRIBUTED_PRODUCTS, WAREHOUSE_MOVEMENT } from './constants'
+
 export interface BasicProduct {
   id: number
   quantity: number
@@ -20,3 +22,7 @@ export interface Product {
   totalQuantity: number
   unallocatedQuantity: number
 }
+
+export type CurrentContent =
+  | typeof DISTRIBUTED_PRODUCTS
+  | typeof WAREHOUSE_MOVEMENT

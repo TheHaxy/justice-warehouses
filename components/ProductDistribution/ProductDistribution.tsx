@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, useCallback } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
 import { SelectChangeEvent, TextField } from '@mui/material'
 import MySelect from '../UI/MySelect/MySelect'
@@ -7,7 +7,7 @@ import {
   BasicWarehouse,
   Product,
   Warehouse,
-} from '../../assets/types'
+} from '../../common/types'
 import styles from './productDistribution.module.css'
 
 interface ProductDistributionProps {
@@ -33,21 +33,31 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
   selectLabel,
   enableQuantity,
 }) => {
-  const removeAddedProduct = () =>
-    (setItemStorage as React.Dispatch<(BasicProduct | BasicWarehouse)[]>)(
-      itemStorage.filter((item) => item.id !== currentItem.id),
-    )
+  const productValue =
+    (currentItem as BasicProduct)?.quantity ||
+    (currentItem as BasicWarehouse)?.product?.quantity
 
-  const changeSelectValue = (event: SelectChangeEvent) => {
-    if (itemStorage.find((item) => item.id === Number(event.target.value)))
-      return
-    ;(setItemStorage as React.Dispatch<(BasicProduct | BasicWarehouse)[]>)(
-      itemStorage.map((item) => {
-        if (item.id !== 0) return item
-        return { ...item, id: Number(event.target.value) }
-      }),
-    )
-  }
+  const removeAddedProduct = useCallback(
+    () =>
+      (setItemStorage as React.Dispatch<(BasicProduct | BasicWarehouse)[]>)(
+        itemStorage.filter((item) => item.id !== currentItem.id),
+      ),
+    [itemStorage],
+  )
+
+  const changeSelectValue = useCallback(
+    (event: SelectChangeEvent) => {
+      if (itemStorage.find((item) => item.id === Number(event.target.value)))
+        return
+      ;(setItemStorage as React.Dispatch<(BasicProduct | BasicWarehouse)[]>)(
+        itemStorage.map((item) => {
+          if (item.id !== 0) return item
+          return { ...item, id: Number(event.target.value) }
+        }),
+      )
+    },
+    [itemStorage],
+  )
 
   return (
     <div className={styles.ProductDistribution}>
@@ -61,10 +71,7 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
       <TextField
         label='Количество'
         inputProps={{ min: 1 }}
-        value={
-          (currentItem as BasicProduct)?.quantity ||
-          (currentItem as BasicWarehouse)?.product?.quantity
-        }
+        value={productValue}
         onChange={inputChange}
         onBlur={blurInput}
       />

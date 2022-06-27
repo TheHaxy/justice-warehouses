@@ -11,7 +11,7 @@ import {
   BasicWarehouse,
   Product,
   Warehouse,
-} from '../../../assets/types'
+} from '../../../common/types'
 
 interface MySelectProps {
   list: (Product | Warehouse)[]
@@ -27,22 +27,26 @@ const MySelect: React.FC<MySelectProps> = ({
   currentItem,
   selectLabel,
   enableQuantity,
-}) => (
-  <FormControl fullWidth>
-    <InputLabel>{selectLabel || ''}</InputLabel>
-    <Select
-      value={currentItem?.id ? String(currentItem.id) : ''}
-      label={selectLabel || ''}
-      onChange={onChange}
-    >
-      {list.map((el) => (
-        <MenuItem key={el.id} value={el.id}>
-          {el.name}{' '}
-          {enableQuantity && `(${(el as Product).unallocatedQuantity}шт.)`}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-)
+}) => {
+  const calcProductQuantity = (el: Product | Warehouse) =>
+    `(${(el as Product).unallocatedQuantity}шт.)`
+
+  return (
+    <FormControl fullWidth>
+      <InputLabel>{selectLabel || ''}</InputLabel>
+      <Select
+        value={currentItem?.id ? String(currentItem.id) : ''}
+        label={selectLabel || ''}
+        onChange={onChange}
+      >
+        {list.map((el) => (
+          <MenuItem key={el.id} value={el.id}>
+            {el.name} {enableQuantity && calcProductQuantity(el)}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  )
+}
 
 export default MySelect

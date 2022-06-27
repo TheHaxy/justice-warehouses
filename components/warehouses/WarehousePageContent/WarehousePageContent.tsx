@@ -1,11 +1,19 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useStore } from 'effector-react'
 import styles from './warehousePageContent.module.css'
 import ProductDistribution from '../../ProductDistribution/ProductDistribution'
 import WarehouseMovement from '../WarehouseMovement/WarehouseMovement'
-import { BasicProduct, BasicWarehouse, Warehouse } from '../../../assets/types'
+import {
+  BasicProduct,
+  BasicWarehouse,
+  CurrentContent,
+  Warehouse,
+} from '../../../common/types'
 import { $productsStorage } from '../../../model/model'
-import { CurrentContent } from '../../../pages/warehouses/[id]'
+import {
+  DISTRIBUTED_PRODUCTS,
+  WAREHOUSE_MOVEMENT,
+} from '../../../common/constants'
 
 interface WarehousePageContentProps {
   movementWarehouses: BasicWarehouse[]
@@ -22,6 +30,8 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
   setEditedWarehouse,
   currentContent,
 }) => {
+  const itsDistributedProducts = currentContent === DISTRIBUTED_PRODUCTS
+  const itsWarehouseMovement = currentContent === WAREHOUSE_MOVEMENT
   const productStorage = useStore($productsStorage)
   const [currentWarehouseProducts, setCurrentWarehouseProducts] = useState(
     editedWarehouse?.products,
@@ -34,21 +44,24 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
     })
   }, [currentWarehouseProducts])
 
-  const updateAddedProductQuantity = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    selectItem: BasicProduct,
-  ) => {
-    setCurrentWarehouseProducts(
-      currentWarehouseProducts.map((item) => {
-        if (item.id !== selectItem.id) return item
-        return { ...item, quantity: Number(e.target.value) }
-      }),
-    )
-  }
+  const updateAddedProductQuantity = useCallback(
+    (
+      e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+      selectItem: BasicProduct,
+    ) => {
+      setCurrentWarehouseProducts(
+        currentWarehouseProducts.map((item) => {
+          if (item.id !== selectItem.id) return item
+          return { ...item, quantity: Number(e.target.value) }
+        }),
+      )
+    },
+    [currentWarehouseProducts],
+  )
 
   return (
     <div className={styles.Content}>
-      {currentContent === 'DISTRIBUTED_PRODUCTS' && (
+      {itsDistributedProducts && (
         <>
           <span className='text-xl'>Распределенные продукты:</span>
           {editedWarehouse?.products?.map((product) => (
@@ -63,7 +76,7 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
           ))}
         </>
       )}
-      {currentContent === 'WAREHOUSE_MOVEMENT' && (
+      {itsWarehouseMovement && (
         <>
           <span className='text-xl'>Перемещение по складам:</span>
           {movementWarehouses?.map((warehouse) => (

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useRouter } from 'next/router'
 import ItemCard from '../ItemCard/ItemCard'
-import { Product, Warehouse } from '../../assets/types'
+import { Product, Warehouse } from '../../common/types'
 import styles from './itemsContainer.module.css'
 
 interface WarehousesContainerProps {
