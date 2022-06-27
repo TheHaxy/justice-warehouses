@@ -1,4 +1,4 @@
-import { BasicWarehouse, Product, Warehouse } from './types'
+import { BasicProduct, BasicWarehouse, Product } from './types'
 import { $warehousesStorage } from '../model/model'
 
 export const voidProduct = {
@@ -10,14 +10,14 @@ export const voidProduct = {
 
 export const voidWarehouse = {
   name: '',
-  id: Math.random(),
+  id: 0,
   products: [],
 }
 
-export const findCurrentProduct = (
-  warehouse: Warehouse,
-  currProduct: Product,
-) => warehouse.products.find((product) => product.id === currProduct?.id)
+export const findCurrentItem = (
+  storage: { id: number | string }[],
+  item: { id: number | string },
+) => storage.find((product) => Number(product.id) === Number(item.id))
 
 export const calcDistributedQuantity = (
   storage: BasicWarehouse[],
@@ -36,11 +36,9 @@ export const calcUnallocatedQuantity = (product: Product) => {
   const distributedQuantities = $warehousesStorage
     .getState()
     .map((warehouse) => {
-      const thisProduct = warehouse.products.find(
-        (item) => item.id === product.id,
-      )
+      const thisProduct = findCurrentItem(warehouse.products, product)
       if (!thisProduct) return 0
-      return thisProduct.quantity
+      return (thisProduct as BasicProduct).quantity
     })
   const distributedQuantity = distributedQuantities.reduce(
     (prevQuantity, currQuantity) => prevQuantity + currQuantity,

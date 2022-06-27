@@ -47,11 +47,13 @@ const ProductDistribution: React.FC<ProductDistributionProps> = ({
 
   const changeSelectValue = useCallback(
     (event: SelectChangeEvent) => {
-      if (itemStorage.find((item) => item.id === Number(event.target.value)))
-        return
+      const productAlreadySelected = itemStorage.find(
+        (item) => item.id === Number(event.target.value),
+      )
+      if (productAlreadySelected) return
       ;(setItemStorage as React.Dispatch<(BasicProduct | BasicWarehouse)[]>)(
         itemStorage.map((item) => {
-          if (item.id !== 0) return item
+          if (item.id !== currentItem.id) return item
           return { ...item, id: Number(event.target.value) }
         }),
       )

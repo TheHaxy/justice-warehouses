@@ -10,11 +10,11 @@ import {
   deleteProduct,
   updateWarehouse,
 } from '../../model/model'
-import { BasicWarehouse, Product } from '../../common/types'
+import { BasicProduct, BasicWarehouse, Product } from '../../common/types'
 import ItemBasicContent from '../../components/ItemBasicContent/ItemBasicContent'
 import ControlProductButtons from '../../components/products/ControlProductButtons/ControlProductButtons'
 import ProductDistribution from '../../components/ProductDistribution/ProductDistribution'
-import { calcDistributedQuantity, findCurrentProduct } from '../../common/utils'
+import { calcDistributedQuantity, findCurrentItem } from '../../common/utils'
 import Modal from '../../components/UI/Modal/Modal'
 
 const ProductPage = () => {
@@ -27,14 +27,17 @@ const ProductPage = () => {
   const [modalIsOpened, setModalIsOpened] = useState(false)
   const [editedProduct, setEditedProduct] = useState(currentProduct)
   const productDistributedWarehouses = warehousesStorage.filter((warehouse) =>
-    findCurrentProduct(warehouse, currentProduct),
+    findCurrentItem(warehouse.products, currentProduct),
   )
   const [warehousesList, setWarehousesList] = useState<BasicWarehouse[]>(
     productDistributedWarehouses.map((warehouse) => {
-      const thisProduct = findCurrentProduct(warehouse, currentProduct)
+      const thisProduct = findCurrentItem(warehouse.products, currentProduct)
       return {
         id: warehouse.id,
-        product: { id: thisProduct?.id, quantity: thisProduct?.quantity },
+        product: {
+          id: thisProduct?.id,
+          quantity: (thisProduct as BasicProduct)?.quantity,
+        },
       }
     }) as BasicWarehouse[],
   )

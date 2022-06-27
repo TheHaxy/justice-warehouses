@@ -6,22 +6,8 @@ import {
   Product,
   Warehouse,
 } from '../common/types'
-import { calcUnallocatedQuantity } from '../common/utils'
+import { calcUnallocatedQuantity, findCurrentItem } from '../common/utils'
 import { PRODUCT_STORAGE, WAREHOUSES_STORAGE } from '../common/constants'
-
-const hasProduct = (products: BasicProduct[], id: BasicProduct['id']) =>
-  products.find((item) => item.id === id)
-
-const isSameEl = (el: { id: number }, msg: { id: number }) => el.id === msg.id
-
-const transformProductById =
-  (el: Warehouse, msg: BasicWarehouse) =>
-  (callbackNn: (item: BasicProduct) => BasicProduct) => ({
-    ...el,
-    products: el.products.map((item) =>
-      isSameEl(item, msg.product) ? callbackNn(item) : item,
-    ),
-  })
 
 export const updateWarehousesStorage = createEvent<Warehouse>()
 export const updateWarehouse = createEvent<Warehouse>()
@@ -39,46 +25,58 @@ export const $warehousesStorage = createStore<Warehouse[]>([])
   .on(updateWarehousesStorage, (state, msg) => [...state, msg])
   .on(updateWarehousesProductsStorage, (state, msg) =>
     state.map((el) => {
-      if (isSameEl(el, msg))
-        return { ...el, products: [...el.products, msg.product] }
-      if (hasProduct(el.products, msg.product.id)) return el
-
-      return transformProductById(
-        el,
-        msg,
-      )((item) => ({ ...item, quantity: item.quantity + msg.product.quantity }))
+      if (el.id !== msg.id) return el
+      if (findCurrentItem(el.products, msg.product))
+        return {
+          ...el,
+          products: el.products.map((item) => {
+            if (item.id !== msg.product.id) return item
+            return { ...item, quantity: item.quantity + msg.product.quantity }
+          }),
+        }
+      return { ...el, products: [...el.products, msg.product] }
     }),
   )
   .on(replaceWarehousesProductsStorage, (state, msg) =>
     state.map((el) => {
-      if (!isSameEl(el, msg)) return el
-      if (hasProduct(el.products, msg.product.id))
-        return { ...el, products: [...el.products, msg.product] }
-      return transformProductById(
-        el,
-        msg,
-      )((item) => ({ ...item, quantity: msg.product.quantity }))
+      if (el.id !== msg.id) return el
+      if (findCurrentItem(el.products, msg.product))
+        return {
+          ...el,
+          products: el.products.map((item) => {
+            if (item.id !== msg.product.id) return item
+            return { ...item, quantity: msg.product.quantity }
+          }),
+        }
+      return { ...el, products: [...el.products, msg.product] }
     }),
   )
   .on(updateWarehouse, (state, msg) =>
-    state.map((el) => (isSameEl(el, msg) ? msg : el)),
+    state.map((el) => {
+      if (el.id !== msg.id) return el
+      return msg
+    }),
   )
   .on(deleteWarehouse, (state, msg) =>
-    state.filter((warehouse) => !isSameEl(warehouse, msg)),
+    state.filter((warehouse) => warehouse.id !== msg.id),
   )
 
 export const $productsStorage = createStore<Product[]>([])
   .on(updateProductsStorage, (state, msg) => [...state, msg])
   .on(updateUnallocatedProductQuantity, (state, msg) =>
-    state.map((product) =>
-      isSameEl(product, msg) ? calcUnallocatedQuantity(product) : product,
-    ),
+    state.map((product) => {
+      if (product.id !== msg.id) return product
+      return calcUnallocatedQuantity(product)
+    }),
   )
   .on(updateProduct, (state, msg) =>
-    state.map((product) => (isSameEl(product, msg) ? msg : product)),
+    state.map((product) => {
+      if (product.id !== msg.id) return product
+      return msg
+    }),
   )
   .on(deleteProduct, (state, msg) =>
-    state.filter((product) => !isSameEl(product, msg)),
+    state.filter((product) => product.id !== msg.id),
   )
 
 persist({

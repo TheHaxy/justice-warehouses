@@ -80,7 +80,7 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
       updateUnallocatedProductQuantity(product)
     })
     setMovementWarehouses([])
-  }, [editedWarehouse, productStorage])
+  }, [editedWarehouse, productStorage, movementWarehouses])
 
   const resetWarehouseChanges = useCallback(() => {
     setEditedWarehouse(JSON.parse(JSON.stringify(currentWarehouse)))
