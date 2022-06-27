@@ -7,6 +7,7 @@ import {
   BasicProduct,
   BasicWarehouse,
   CurrentContent,
+  Product,
   Warehouse,
 } from '../../../common/types'
 import { $productsStorage } from '../../../model/model'
@@ -14,6 +15,7 @@ import {
   DISTRIBUTED_PRODUCTS,
   WAREHOUSE_MOVEMENT,
 } from '../../../common/constants'
+import { findCurrentItem } from '../../../common/utils'
 
 interface WarehousePageContentProps {
   movementWarehouses: BasicWarehouse[]
@@ -44,6 +46,10 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
     })
   }, [currentWarehouseProducts])
 
+  useEffect(() => {
+    setCurrentWarehouseProducts(editedWarehouse?.products)
+  }, [editedWarehouse?.products])
+
   const updateAddedProductQuantity = useCallback(
     (
       e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -59,6 +65,29 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
     [currentWarehouseProducts],
   )
 
+  const checkProductUnallocatedQuantity = useCallback(
+    (product: BasicProduct) => {
+      const productFullInfo = findCurrentItem(productStorage, product)
+
+      const quantityNotExceededLimit =
+        product.quantity < (productFullInfo as Product)?.unallocatedQuantity
+
+      if (quantityNotExceededLimit) return
+
+      setEditedWarehouse({
+        ...editedWarehouse,
+        products: editedWarehouse.products.map((item) => {
+          if (item.id !== product.id) return item
+          return {
+            ...item,
+            quantity: (productFullInfo as Product)?.unallocatedQuantity,
+          }
+        }),
+      })
+    },
+    [editedWarehouse, productStorage],
+  )
+
   return (
     <div className={styles.Content}>
       {itsDistributedProducts && (
@@ -71,6 +100,7 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
               selectListItem={productStorage}
               itemStorage={currentWarehouseProducts}
               setItemStorage={setCurrentWarehouseProducts}
+              blurInput={() => checkProductUnallocatedQuantity(product)}
               inputChange={(e) => updateAddedProductQuantity(e, product)}
             />
           ))}
