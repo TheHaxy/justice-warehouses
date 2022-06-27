@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useStore } from 'effector-react'
+import Head from 'next/head'
 import {
   $warehousesStorage,
   deleteWarehouse,
@@ -56,51 +57,57 @@ const WarehousePage = () => {
   }, [currentWarehouse])
 
   return (
-    <div className={styles.WarehousePage}>
-      {modalIsOpened && (
-        <Modal
-          name='Внимание!'
-          setModalIsOpened={setModalIsOpened}
-          apply={deleteCurrentWarehouse}
-          cancel={() => setModalIsOpened(false)}
-          enableCancelButton
-        >
-          <span>
-            При удалении склада все продукты попадут в нераспределенное
-            хранилище. Вы действительно хотите сделать это?
-          </span>
-        </Modal>
-      )}
-      <div className={styles.PageContent}>
-        <div className={styles.TopContent}>
-          <ItemBasicContent
-            item={editedWarehouse}
-            changeName={changeWarehouseName}
-            deleteItem={() => setModalIsOpened(true)}
+    <>
+      <Head>
+        <title>Warehouse - {editedWarehouse?.name}</title>
+        <meta charSet='utf-8' />
+      </Head>
+      <div className={styles.WarehousePage}>
+        {modalIsOpened && (
+          <Modal
+            name='Внимание!'
+            setModalIsOpened={setModalIsOpened}
+            apply={deleteCurrentWarehouse}
+            cancel={() => setModalIsOpened(false)}
+            enableCancelButton
           >
-            <SwitchCurrentContent
-              currentContent={currentContent}
-              setCurrentContent={setCurrentContent}
-            />
-          </ItemBasicContent>
+            <span>
+              При удалении склада все продукты попадут в нераспределенное
+              хранилище. Вы действительно хотите сделать это?
+            </span>
+          </Modal>
+        )}
+        <div className={styles.PageContent}>
+          <div className={styles.TopContent}>
+            <ItemBasicContent
+              item={editedWarehouse}
+              changeName={changeWarehouseName}
+              deleteItem={() => setModalIsOpened(true)}
+            >
+              <SwitchCurrentContent
+                currentContent={currentContent}
+                setCurrentContent={setCurrentContent}
+              />
+            </ItemBasicContent>
+          </div>
+          <WarehousePageContent
+            movementWarehouses={movementWarehouses}
+            setMovementWarehouses={setMovementWarehouses}
+            editedWarehouse={editedWarehouse}
+            setEditedWarehouse={setEditedWarehouse}
+            currentContent={currentContent}
+          />
         </div>
-        <WarehousePageContent
+        <ControlWarehouseButtons
           movementWarehouses={movementWarehouses}
           setMovementWarehouses={setMovementWarehouses}
+          currentContent={currentContent}
+          currentWarehouse={currentWarehouse}
           editedWarehouse={editedWarehouse}
           setEditedWarehouse={setEditedWarehouse}
-          currentContent={currentContent}
         />
       </div>
-      <ControlWarehouseButtons
-        movementWarehouses={movementWarehouses}
-        setMovementWarehouses={setMovementWarehouses}
-        currentContent={currentContent}
-        currentWarehouse={currentWarehouse}
-        editedWarehouse={editedWarehouse}
-        setEditedWarehouse={setEditedWarehouse}
-      />
-    </div>
+    </>
   )
 }
 

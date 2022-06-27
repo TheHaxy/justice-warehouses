@@ -2,6 +2,7 @@ import React, { ChangeEvent, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { useStore } from 'effector-react'
 import { TextField } from '@mui/material'
+import Head from 'next/head'
 import styles from './productPage.module.css'
 import {
   $productsStorage,
@@ -117,63 +118,69 @@ const ProductPage = () => {
   )
 
   return (
-    <div className={styles.productPage}>
-      {modalIsOpened && (
-        <Modal
-          name='Внимание!'
-          setModalIsOpened={setModalIsOpened}
-          apply={deleteCurrentProduct}
-          cancel={() => setModalIsOpened(false)}
-          enableCancelButton
-        >
-          <span>
-            При удалении продукта он также будет удален со всех складов. Вы
-            действительно хотите сделать это?
-          </span>
-        </Modal>
-      )}
-      <div className={styles.PageContent}>
-        <div className={styles.BasicContent}>
-          <ItemBasicContent
-            item={editedProduct}
-            changeName={changeProductName}
-            deleteItem={() => setModalIsOpened(true)}
+    <>
+      <Head>
+        <title>Product - {editedProduct?.name}</title>
+        <meta charSet='utf-8' />
+      </Head>
+      <div className={styles.productPage}>
+        {modalIsOpened && (
+          <Modal
+            name='Внимание!'
+            setModalIsOpened={setModalIsOpened}
+            apply={deleteCurrentProduct}
+            cancel={() => setModalIsOpened(false)}
+            enableCancelButton
           >
-            <TextField
-              type='number'
-              label='Общее количество'
-              value={editedProduct?.totalQuantity}
-              onChange={changeProductTotalQuantity}
-            />
-            <span>Нераспределено: {editedProduct?.unallocatedQuantity}</span>
-          </ItemBasicContent>
+            <span>
+              При удалении продукта он также будет удален со всех складов. Вы
+              действительно хотите сделать это?
+            </span>
+          </Modal>
+        )}
+        <div className={styles.PageContent}>
+          <div className={styles.BasicContent}>
+            <ItemBasicContent
+              item={editedProduct}
+              changeName={changeProductName}
+              deleteItem={() => setModalIsOpened(true)}
+            >
+              <TextField
+                type='number'
+                label='Общее количество'
+                value={editedProduct?.totalQuantity}
+                onChange={changeProductTotalQuantity}
+              />
+              <span>Нераспределено: {editedProduct?.unallocatedQuantity}</span>
+            </ItemBasicContent>
+          </div>
+          <div className='pr-10 flex flex-col gap-6'>
+            <span className='text-xl'>Распределение по складам:</span>
+            {(warehousesList as BasicWarehouse[])?.map((warehouse) => (
+              <ProductDistribution
+                key={warehouse.id}
+                currentItem={warehouse}
+                selectListItem={warehousesStorage}
+                itemStorage={warehousesList}
+                setItemStorage={setWarehousesList}
+                blurInput={() => checkDistributedQuantity(warehouse)}
+                inputChange={(e) =>
+                  updateProductDistributedWarehouseQuantity(e, warehouse)
+                }
+              />
+            ))}
+          </div>
         </div>
-        <div className='pr-10 flex flex-col gap-6'>
-          <span className='text-xl'>Распределение по складам:</span>
-          {(warehousesList as BasicWarehouse[])?.map((warehouse) => (
-            <ProductDistribution
-              key={warehouse.id}
-              currentItem={warehouse}
-              selectListItem={warehousesStorage}
-              itemStorage={warehousesList}
-              setItemStorage={setWarehousesList}
-              blurInput={() => checkDistributedQuantity(warehouse)}
-              inputChange={(e) =>
-                updateProductDistributedWarehouseQuantity(e, warehouse)
-              }
-            />
-          ))}
-        </div>
+        <ControlProductButtons
+          currentProduct={currentProduct}
+          editedProduct={editedProduct}
+          setEditedProduct={setEditedProduct}
+          warehousesList={warehousesList}
+          setWarehousesList={setWarehousesList}
+          productDistributedWarehouses={productDistributedWarehouses}
+        />
       </div>
-      <ControlProductButtons
-        currentProduct={currentProduct}
-        editedProduct={editedProduct}
-        setEditedProduct={setEditedProduct}
-        warehousesList={warehousesList}
-        setWarehousesList={setWarehousesList}
-        productDistributedWarehouses={productDistributedWarehouses}
-      />
-    </div>
+    </>
   )
 }
 

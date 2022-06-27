@@ -1,7 +1,7 @@
 .Item {
     @apply p-8;
     @apply flex items-center gap-12;
-    @apply bg-white rounded-lg hover: cursor-pointer;
+    @apply bg-white rounded-lg hover:cursor-pointer;
 }
 
 .QuantityContainer {
