@@ -29,18 +29,22 @@ const ProductPage = () => {
   const productDistributedWarehouses = warehousesStorage.filter((warehouse) =>
     findCurrentItem(warehouse.products, currentProduct),
   )
-  const [warehousesList, setWarehousesList] = useState<BasicWarehouse[]>(
-    productDistributedWarehouses.map((warehouse) => {
-      const thisProduct = findCurrentItem(warehouse.products, currentProduct)
-      return {
-        id: warehouse.id,
-        product: {
-          id: thisProduct?.id,
-          quantity: (thisProduct as BasicProduct)?.quantity,
-        },
-      }
-    }) as BasicWarehouse[],
-  )
+  const [warehousesList, setWarehousesList] = useState<BasicWarehouse[]>([])
+
+  useEffect(() => {
+    setWarehousesList(
+      productDistributedWarehouses.map((warehouse) => {
+        const thisProduct = findCurrentItem(warehouse.products, currentProduct)
+        return {
+          id: warehouse.id,
+          product: {
+            id: thisProduct?.id,
+            quantity: (thisProduct as BasicProduct)?.quantity,
+          },
+        }
+      }) as BasicWarehouse[],
+    )
+  }, [editedProduct])
 
   useEffect(() => {
     setEditedProduct(currentProduct)
@@ -120,6 +124,16 @@ const ProductPage = () => {
     [editedProduct, warehousesList],
   )
 
+  const checkProductTotalQuantity = useCallback(() => {
+    const admissibleTotalQuantity =
+      editedProduct.totalQuantity > currentProduct.unallocatedQuantity
+    if (admissibleTotalQuantity) return
+    setEditedProduct({
+      ...editedProduct,
+      totalQuantity: currentProduct.totalQuantity,
+    })
+  }, [editedProduct, currentProduct])
+
   return (
     <>
       <Head>
@@ -152,6 +166,7 @@ const ProductPage = () => {
                 type='number'
                 label='Общее количество'
                 value={editedProduct?.totalQuantity}
+                onBlur={checkProductTotalQuantity}
                 onChange={changeProductTotalQuantity}
               />
               <span>Нераспределено: {editedProduct?.unallocatedQuantity}</span>
