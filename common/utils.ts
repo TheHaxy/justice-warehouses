@@ -8,6 +8,12 @@ export const voidProduct = {
   unallocatedQuantity: 0,
 }
 
+export const voidWarehouse = {
+  name: '',
+  id: Math.random(),
+  products: [],
+}
+
 export const findCurrentProduct = (
   warehouse: Warehouse,
   currProduct: Product,

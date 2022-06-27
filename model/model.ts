@@ -5,8 +5,8 @@ import {
   BasicWarehouse,
   Product,
   Warehouse,
-} from '../assets/types'
-import { calcUnallocatedQuantity } from '../assets/utils'
+} from '../common/types'
+import { calcUnallocatedQuantity } from '../common/utils'
 
 export const updateWarehousesStorage = createEvent<Warehouse>()
 export const updateWarehouse = createEvent<Warehouse>()

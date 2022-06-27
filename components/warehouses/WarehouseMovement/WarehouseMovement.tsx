@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { SelectChangeEvent, TextField } from '@mui/material'
 import { useStore } from 'effector-react'
-import { BasicProduct, BasicWarehouse, Product } from '../../../assets/types'
+import { BasicProduct, BasicWarehouse, Product } from '../../../common/types'
 import MySelect from '../../UI/MySelect/MySelect'
 import { $productsStorage, $warehousesStorage } from '../../../model/model'
 
@@ -54,41 +54,50 @@ const WarehouseMovement: React.FC<WarehouseMovementProps> = ({
     )
   }, [productList])
 
-  const updateProductQuantity = (quantity: string | number) => {
-    setSelectedWarehouse({
-      ...selectedWarehouse,
-      product: {
-        ...selectedWarehouse.product,
-        quantity: Number(quantity),
-      },
-    })
-  }
+  const updateProductQuantity = useCallback(
+    (quantity: string | number) => {
+      setSelectedWarehouse({
+        ...selectedWarehouse,
+        product: {
+          ...selectedWarehouse.product,
+          quantity: Number(quantity),
+        },
+      })
+    },
+    [selectedWarehouse],
+  )
 
-  const selectProduct = (e: SelectChangeEvent) => {
-    setSelectedWarehouse({
-      ...selectedWarehouse,
-      product: { ...selectedWarehouse.product, id: Number(e.target.value) },
-    })
-  }
+  const selectProduct = useCallback(
+    (e: SelectChangeEvent) => {
+      setSelectedWarehouse({
+        ...selectedWarehouse,
+        product: { ...selectedWarehouse.product, id: Number(e.target.value) },
+      })
+    },
+    [selectedWarehouse],
+  )
 
-  const selectWarehouse = (e: SelectChangeEvent) => {
-    setSelectedWarehouse({ ...selectedWarehouse, id: Number(e.target.value) })
-    setMovementWarehouses(
-      movementWarehouses.map((warehouse) => {
-        if (warehouse.id !== 0) return warehouse
-        return { ...warehouse, id: Number(e.target.value) }
-      }),
-    )
-  }
+  const selectWarehouse = useCallback(
+    (e: SelectChangeEvent) => {
+      setSelectedWarehouse({ ...selectedWarehouse, id: Number(e.target.value) })
+      setMovementWarehouses(
+        movementWarehouses.map((warehouse) => {
+          if (warehouse.id !== 0) return warehouse
+          return { ...warehouse, id: Number(e.target.value) }
+        }),
+      )
+    },
+    [movementWarehouses, selectedWarehouse],
+  )
 
-  const checkDistributedQuantity = () => {
+  const checkDistributedQuantity = useCallback(() => {
     const thisProductUnallocatedQuantity =
       productList.find((product) => product.id === currentProduct.id)
         ?.quantity || 0
     if (thisProductUnallocatedQuantity > selectedWarehouse.product.quantity)
       return
     updateProductQuantity(thisProductUnallocatedQuantity)
-  }
+  }, [productList])
 
   return (
     <div className='grid grid-cols-3 gap-2'>

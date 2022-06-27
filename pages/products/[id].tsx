@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { useStore } from 'effector-react'
 import { TextField } from '@mui/material'
@@ -9,11 +9,11 @@ import {
   deleteProduct,
   updateWarehouse,
 } from '../../model/model'
-import { BasicWarehouse, Product } from '../../assets/types'
+import { BasicWarehouse, Product } from '../../common/types'
 import ItemBasicContent from '../../components/ItemBasicContent/ItemBasicContent'
 import ControlProductButtons from '../../components/products/ControlProductButtons/ControlProductButtons'
 import ProductDistribution from '../../components/ProductDistribution/ProductDistribution'
-import { calcDistributedQuantity, findCurrentProduct } from '../../assets/utils'
+import { calcDistributedQuantity, findCurrentProduct } from '../../common/utils'
 import Modal from '../../components/UI/Modal/Modal'
 
 const ProductPage = () => {
@@ -42,33 +42,39 @@ const ProductPage = () => {
     setEditedProduct(currentProduct)
   }, [currentProduct])
 
-  const changeProductName = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditedProduct({ ...editedProduct, name: e.target.value })
-  }
+  const changeProductName = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setEditedProduct({ ...editedProduct, name: e.target.value })
+    },
+    [editedProduct],
+  )
 
-  const changeProductTotalQuantity = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditedProduct({
-      ...editedProduct,
-      totalQuantity: Number(e.target.value),
-    })
-  }
+  const changeProductTotalQuantity = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setEditedProduct({
+        ...editedProduct,
+        totalQuantity: Number(e.target.value),
+      })
+    },
+    [editedProduct],
+  )
 
-  const updateProductDistributedWarehouseQuantity = (
-    e: ChangeEvent<HTMLInputElement>,
-    currentWarehouse: BasicWarehouse,
-  ) => {
-    setWarehousesList(
-      warehousesList.map((warehouse) => {
-        if (warehouse.id !== currentWarehouse.id) return warehouse
-        return {
-          ...warehouse,
-          product: { ...warehouse.product, quantity: Number(e.target.value) },
-        }
-      }),
-    )
-  }
+  const updateProductDistributedWarehouseQuantity = useCallback(
+    (e: ChangeEvent<HTMLInputElement>, currentWarehouse: BasicWarehouse) => {
+      setWarehousesList(
+        warehousesList.map((warehouse) => {
+          if (warehouse.id !== currentWarehouse.id) return warehouse
+          return {
+            ...warehouse,
+            product: { ...warehouse.product, quantity: Number(e.target.value) },
+          }
+        }),
+      )
+    },
+    [warehousesList],
+  )
 
-  const deleteCurrentProduct = () => {
+  const deleteCurrentProduct = useCallback(() => {
     router.back()
     productDistributedWarehouses.forEach((warehouse) => {
       const newWarehouse = {
@@ -80,30 +86,35 @@ const ProductPage = () => {
       updateWarehouse(newWarehouse)
     })
     deleteProduct(currentProduct)
-  }
+  }, [productDistributedWarehouses])
 
-  const checkDistributedQuantity = (currentItem: BasicWarehouse) => {
-    const unallocatedQuantity =
-      editedProduct.totalQuantity - calcDistributedQuantity(warehousesList)
-    if (unallocatedQuantity >= 0) {
-      setEditedProduct({ ...editedProduct, unallocatedQuantity })
-      return
-    }
-    setWarehousesList(
-      warehousesList.map((warehouse) => {
-        if (warehouse.id !== currentItem.id) return warehouse
-        return {
-          ...warehouse,
-          product: {
-            ...warehouse.product,
-            quantity:
-              editedProduct.totalQuantity -
-              calcDistributedQuantity(warehousesList, currentItem),
-          },
-        }
-      }),
-    )
-  }
+  const checkDistributedQuantity = useCallback(
+    (currentItem: BasicWarehouse) => {
+      const unallocatedQuantity =
+        editedProduct.totalQuantity - calcDistributedQuantity(warehousesList)
+
+      if (unallocatedQuantity >= 0) {
+        setEditedProduct({ ...editedProduct, unallocatedQuantity })
+        return
+      }
+
+      setWarehousesList(
+        warehousesList.map((warehouse) => {
+          if (warehouse.id !== currentItem.id) return warehouse
+          return {
+            ...warehouse,
+            product: {
+              ...warehouse.product,
+              quantity:
+                editedProduct.totalQuantity -
+                calcDistributedQuantity(warehousesList, currentItem),
+            },
+          }
+        }),
+      )
+    },
+    [editedProduct, warehousesList],
+  )
 
   return (
     <div className={styles.productPage}>

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useStore } from 'effector-react'
 import {
@@ -6,15 +6,14 @@ import {
   deleteWarehouse,
   updateUnallocatedProductQuantity,
 } from '../../model/model'
-import { BasicWarehouse, Warehouse } from '../../assets/types'
+import { BasicWarehouse, CurrentContent, Warehouse } from '../../common/types'
 import ControlWarehouseButtons from '../../components/warehouses/ControlButtons/ControlWarehouseButtons'
 import SwitchCurrentContent from '../../components/warehouses/SwitchCurrentContent/SwitchCurrentContent'
 import styles from './warehousePage.module.css'
 import WarehousePageContent from '../../components/warehouses/WarehousePageContent/WarehousePageContent'
 import ItemBasicContent from '../../components/ItemBasicContent/ItemBasicContent'
 import Modal from '../../components/UI/Modal/Modal'
-
-export type CurrentContent = 'DISTRIBUTED_PRODUCTS' | 'WAREHOUSE_MOVEMENT'
+import { DISTRIBUTED_PRODUCTS } from '../../common/constants'
 
 const WarehousePage = () => {
   const router = useRouter()
@@ -24,9 +23,8 @@ const WarehousePage = () => {
   ) as Warehouse
   const [modalIsOpened, setModalIsOpened] = useState(false)
   const [editedWarehouse, setEditedWarehouse] = useState(currentWarehouse)
-  const [currentContent, setCurrentContent] = useState<CurrentContent>(
-    'DISTRIBUTED_PRODUCTS',
-  )
+  const [currentContent, setCurrentContent] =
+    useState<CurrentContent>(DISTRIBUTED_PRODUCTS)
   const [movementWarehouses, setMovementWarehouses] = useState<
     BasicWarehouse[]
   >([])
@@ -39,20 +37,23 @@ const WarehousePage = () => {
     )
   }, [warehousesStorage])
 
-  const changeWarehouseName = (e: ChangeEvent<HTMLInputElement>) => {
-    setEditedWarehouse({
-      ...editedWarehouse,
-      name: e.target.value,
-    })
-  }
+  const changeWarehouseName = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setEditedWarehouse({
+        ...editedWarehouse,
+        name: e.target.value,
+      })
+    },
+    [editedWarehouse],
+  )
 
-  const deleteCurrentWarehouse = async () => {
+  const deleteCurrentWarehouse = useCallback(() => {
     router.back()
     deleteWarehouse(currentWarehouse)
     currentWarehouse.products.forEach((product) =>
       updateUnallocatedProductQuantity(product),
     )
-  }
+  }, [currentWarehouse])
 
   return (
     <div className={styles.WarehousePage}>

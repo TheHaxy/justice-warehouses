@@ -4,6 +4,7 @@ import { useStore } from 'effector-react'
 import ItemsContainer from '../../components/ItemsContainer/ItemsContainer'
 import { $warehousesStorage } from '../../model/model'
 import CreateWarehouseModal from '../../components/warehouses/CreateWarehouseModal/CreateWarehouseModal'
+import { voidWarehouse } from '../../common/utils'
 
 const Index = () => {
   const warehousesStorage = useStore($warehousesStorage)
@@ -14,11 +15,7 @@ const Index = () => {
       {modalIsOpened && (
         <CreateWarehouseModal
           setModalIsOpened={setModalIsOpened}
-          currentWarehouse={{
-            name: '',
-            id: Math.random(),
-            products: [],
-          }}
+          currentWarehouse={voidWarehouse}
         />
       )}
       <Button variant='outlined' onClick={() => setModalIsOpened(true)}>

@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Button } from '@mui/material'
-import { BasicWarehouse, Product, Warehouse } from '../../../assets/types'
+import { BasicWarehouse, Product, Warehouse } from '../../../common/types'
 import {
   replaceWarehousesProductsStorage,
   updateProduct,
@@ -25,7 +25,7 @@ const ControlProductButtons: React.FC<ControlButtonsProps> = ({
   setWarehousesList,
   productDistributedWarehouses,
 }) => {
-  const updateProductValue = () => {
+  const updateProductValue = useCallback(() => {
     updateProduct(editedProduct)
     warehousesList.forEach((warehouse) => {
       replaceWarehousesProductsStorage(warehouse)
@@ -39,11 +39,11 @@ const ControlProductButtons: React.FC<ControlButtonsProps> = ({
       }
     })
     updateUnallocatedProductQuantity(editedProduct)
-  }
+  }, [editedProduct, productDistributedWarehouses, warehousesList])
 
-  const resetProductChanges = () => {
+  const resetProductChanges = useCallback(() => {
     setEditedProduct(JSON.parse(JSON.stringify(currentProduct)))
-  }
+  }, [currentProduct])
 
   const addWarehouse = () => {
     setWarehousesList([
