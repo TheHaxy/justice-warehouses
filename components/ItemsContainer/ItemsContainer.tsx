@@ -1,7 +1,9 @@
 import React from 'react'
-import { useRouter } from 'next/router'
+
+import {useRouter} from 'next/router'
 import ItemCard from '../ItemCard/ItemCard'
-import { Product, Warehouse } from '../../common/types'
+import {Product, Warehouse} from '../../common/types'
+
 import styles from './itemsContainer.module.css'
 
 interface WarehousesContainerProps {
@@ -9,8 +11,8 @@ interface WarehousesContainerProps {
 }
 
 const ItemsContainer: React.FC<WarehousesContainerProps> = ({
-  itemsStorage,
-}) => {
+                                                              itemsStorage,
+                                                            }) => {
   const router = useRouter()
 
   const openWarehouse = (item: Warehouse | Product) => {

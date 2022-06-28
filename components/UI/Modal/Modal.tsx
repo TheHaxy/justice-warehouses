@@ -1,6 +1,8 @@
 import React, { ReactNode } from 'react'
+
 import CloseIcon from '@mui/icons-material/Close'
 import { Button } from '@mui/material'
+
 import styles from './modal.module.css'
 
 interface ModalProps {

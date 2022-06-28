@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
+
 import { SelectChangeEvent, TextField } from '@mui/material'
 import { useStore } from 'effector-react'
 import { BasicProduct, BasicWarehouse, Product } from '../../../common/types'
@@ -21,6 +22,7 @@ const WarehouseMovement: React.FC<WarehouseMovementProps> = ({
 }) => {
   const warehousesStorage = useStore($warehousesStorage)
   const productStorage = useStore($productsStorage)
+
   const [selectedWarehouse, setSelectedWarehouse] = useState(currentWarehouse)
   const [currentProduct, setCurrentProduct] = useState(
     findCurrentItem(productStorage, selectedWarehouse.product) as Product,

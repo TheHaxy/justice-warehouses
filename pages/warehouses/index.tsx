@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+
 import { Button } from '@mui/material'
 import { useStore } from 'effector-react'
 import Head from 'next/head'
@@ -9,6 +10,7 @@ import { voidWarehouse } from '../../common/utils'
 
 const Index = () => {
   const warehousesStorage = useStore($warehousesStorage)
+
   const [modalIsOpened, setModalIsOpened] = useState(false)
 
   return (

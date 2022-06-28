@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+
 import { Button } from '@mui/material'
 import { useStore } from 'effector-react'
 import Head from 'next/head'
@@ -8,6 +9,7 @@ import CreateProductModal from '../../components/products/CreateProductModal/Cre
 
 const Index = () => {
   const productsStorage = useStore($productsStorage)
+
   const [modalIsOpened, setModalIsOpened] = useState(false)
 
   return (

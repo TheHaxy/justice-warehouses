@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Button } from '@mui/material'
-import { useStore } from 'effector-react'
+import React, {useCallback, useEffect, useState} from 'react'
+
+import {Button} from '@mui/material'
+import {useStore} from 'effector-react'
 import {
   BasicWarehouse,
   CurrentContent,
@@ -27,19 +28,22 @@ interface ControlButtonsProps {
 }
 
 const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
-  movementWarehouses,
-  setMovementWarehouses,
-  currentContent,
-  currentWarehouse,
-  editedWarehouse,
-  setEditedWarehouse,
-}) => {
+                                                                  movementWarehouses,
+                                                                  setMovementWarehouses,
+                                                                  currentContent,
+                                                                  currentWarehouse,
+                                                                  editedWarehouse,
+                                                                  setEditedWarehouse,
+                                                                }) => {
   const itsDistributedProducts = currentContent === DISTRIBUTED_PRODUCTS
   const itsWarehouseMovement = currentContent === WAREHOUSE_MOVEMENT
+
   const productStorage = useStore($productsStorage)
+
   const [currentWarehouseProducts, setCurrentWarehouseProducts] = useState(
     currentWarehouse?.products,
   )
+
   const unallocatedProducts = productStorage.filter(
     (product) => product.unallocatedQuantity,
   )
@@ -62,16 +66,18 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
   const updateWarehouseValue = useCallback(() => {
     updateWarehouse({
       ...editedWarehouse,
-      products: editedWarehouse.products.map((product) => {
-        const movementWarehouse = movementWarehouses.find(
-          (item) => item.product.id === product.id,
-        )
-        if (!movementWarehouse) return product
-        return {
-          ...product,
-          quantity: product.quantity - movementWarehouse.product.quantity,
-        }
-      }),
+      products: editedWarehouse.products
+        .filter((product) => product.id !== 0 && product.quantity !== 0)
+        .map((product) => {
+          const movementWarehouse = movementWarehouses.find(
+            (item) => item.product.id === product.id,
+          )
+          if (!movementWarehouse) return product
+          return {
+            ...product,
+            quantity: product.quantity - movementWarehouse.product.quantity,
+          }
+        }),
     })
     movementWarehouses.forEach((warehouse) => {
       updateWarehousesProductsStorage(warehouse)
@@ -91,7 +97,7 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
     if (currentWarehouseProducts.length > 5) return
     setCurrentWarehouseProducts([
       ...currentWarehouseProducts,
-      { id: 0, quantity: 0 },
+      {id: 0, quantity: 0},
     ])
   }, [currentWarehouseProducts])
 
@@ -99,7 +105,7 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
     if (!movementWarehouses || !setMovementWarehouses) return
     setMovementWarehouses([
       ...movementWarehouses,
-      { id: 0, product: { id: 0, quantity: 0 } },
+      {id: 0, product: {id: 0, quantity: 0}},
     ])
   }, [movementWarehouses])
 

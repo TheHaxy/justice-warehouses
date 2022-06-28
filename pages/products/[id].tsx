@@ -1,35 +1,42 @@
-import React, { ChangeEvent, useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/router'
-import { useStore } from 'effector-react'
-import { TextField } from '@mui/material'
+import React, {ChangeEvent, useEffect, useState, useCallback} from 'react'
+
+import {useRouter} from 'next/router'
+import {useStore} from 'effector-react'
+import {TextField} from '@mui/material'
+
 import Head from 'next/head'
-import styles from './productPage.module.css'
 import {
   $productsStorage,
   $warehousesStorage,
   deleteProduct,
   updateWarehouse,
 } from '../../model/model'
-import { BasicProduct, BasicWarehouse, Product } from '../../common/types'
+import {BasicProduct, BasicWarehouse, Product} from '../../common/types'
 import ItemBasicContent from '../../components/ItemBasicContent/ItemBasicContent'
 import ControlProductButtons from '../../components/products/ControlProductButtons/ControlProductButtons'
 import ProductDistribution from '../../components/ProductDistribution/ProductDistribution'
-import { calcDistributedQuantity, findCurrentItem } from '../../common/utils'
+import {calcDistributedQuantity, findCurrentItem} from '../../common/utils'
 import Modal from '../../components/UI/Modal/Modal'
+
+import styles from './productPage.module.css'
 
 const ProductPage = () => {
   const router = useRouter()
+
   const warehousesStorage = useStore($warehousesStorage)
   const productStorage = useStore($productsStorage)
+
   const currentProduct = productStorage.find(
     (product) => product.id === Number(router.query.id),
   ) as Product
+
   const [modalIsOpened, setModalIsOpened] = useState(false)
   const [editedProduct, setEditedProduct] = useState(currentProduct)
+  const [warehousesList, setWarehousesList] = useState<BasicWarehouse[]>([])
+
   const productDistributedWarehouses = warehousesStorage.filter((warehouse) =>
     findCurrentItem(warehouse.products, currentProduct),
   )
-  const [warehousesList, setWarehousesList] = useState<BasicWarehouse[]>([])
 
   useEffect(() => {
     setWarehousesList(
@@ -52,7 +59,7 @@ const ProductPage = () => {
 
   const changeProductName = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      setEditedProduct({ ...editedProduct, name: e.target.value })
+      setEditedProduct({...editedProduct, name: e.target.value})
     },
     [editedProduct],
   )
@@ -74,7 +81,7 @@ const ProductPage = () => {
           if (warehouse.id !== currentWarehouse.id) return warehouse
           return {
             ...warehouse,
-            product: { ...warehouse.product, quantity: Number(e.target.value) },
+            product: {...warehouse.product, quantity: Number(e.target.value)},
           }
         }),
       )
@@ -84,16 +91,18 @@ const ProductPage = () => {
 
   const deleteCurrentProduct = useCallback(() => {
     router.back()
-    productDistributedWarehouses.forEach((warehouse) => {
-      const newWarehouse = {
-        ...warehouse,
-        products: warehouse.products.filter(
-          (product) => product.id !== currentProduct.id,
-        ),
-      }
-      updateWarehouse(newWarehouse)
-    })
-    deleteProduct(currentProduct)
+    setTimeout(() => {
+      productDistributedWarehouses.forEach((warehouse) => {
+        const newWarehouse = {
+          ...warehouse,
+          products: warehouse.products.filter(
+            (product) => product.id !== currentProduct.id,
+          ),
+        }
+        updateWarehouse(newWarehouse)
+      })
+      deleteProduct(currentProduct)
+    }, 300)
   }, [productDistributedWarehouses])
 
   const checkDistributedQuantity = useCallback(
@@ -102,7 +111,10 @@ const ProductPage = () => {
         editedProduct.totalQuantity - calcDistributedQuantity(warehousesList)
 
       if (unallocatedQuantity >= 0) {
-        setEditedProduct({ ...editedProduct, unallocatedQuantity })
+        setWarehousesList(warehousesList.map((warehouse) => {
+          if (warehouse.product.id !== currentItem.id) return warehouse
+          return {...warehouse, product: {...warehouse.product, quantity: currentItem.product.quantity}}
+        }))
         return
       }
 
@@ -114,7 +126,7 @@ const ProductPage = () => {
             product: {
               ...warehouse.product,
               quantity:
-                editedProduct.totalQuantity -
+                editedProduct.unallocatedQuantity -
                 calcDistributedQuantity(warehousesList, currentItem),
             },
           }
@@ -138,7 +150,7 @@ const ProductPage = () => {
     <>
       <Head>
         <title>Product - {editedProduct?.name}</title>
-        <meta charSet='utf-8' />
+        <meta charSet='utf-8'/>
       </Head>
       <div className={styles.productPage}>
         {modalIsOpened && (

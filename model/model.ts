@@ -1,13 +1,13 @@
-import { createEvent, createStore } from 'effector'
-import { persist } from 'effector-storage/local'
+import {createEvent, createStore} from 'effector'
+import {persist} from 'effector-storage/local'
 import {
   BasicProduct,
   BasicWarehouse,
   Product,
   Warehouse,
 } from '../common/types'
-import { calcUnallocatedQuantity, findCurrentItem } from '../common/utils'
-import { PRODUCT_STORAGE, WAREHOUSES_STORAGE } from '../common/constants'
+import {calcUnallocatedQuantity, findCurrentItem} from '../common/utils'
+import {PRODUCT_STORAGE, WAREHOUSES_STORAGE} from '../common/constants'
 
 export const updateWarehousesStorage = createEvent<Warehouse>()
 export const updateWarehouse = createEvent<Warehouse>()
@@ -15,9 +15,7 @@ export const updateProductsStorage = createEvent<Product>()
 export const updateProduct = createEvent<Product>()
 export const updateWarehousesProductsStorage = createEvent<BasicWarehouse>()
 export const replaceWarehousesProductsStorage = createEvent<BasicWarehouse>()
-export const updateUnallocatedProductQuantity = createEvent<
-  BasicProduct | Product
->()
+export const updateUnallocatedProductQuantity = createEvent<BasicProduct | Product>()
 export const deleteProduct = createEvent<Product>()
 export const deleteWarehouse = createEvent<Warehouse>()
 
@@ -31,10 +29,10 @@ export const $warehousesStorage = createStore<Warehouse[]>([])
           ...el,
           products: el.products.map((item) => {
             if (item.id !== msg.product.id) return item
-            return { ...item, quantity: item.quantity + msg.product.quantity }
+            return {...item, quantity: item.quantity + msg.product.quantity}
           }),
         }
-      return { ...el, products: [...el.products, msg.product] }
+      return {...el, products: [...el.products, msg.product]}
     }),
   )
   .on(replaceWarehousesProductsStorage, (state, msg) =>
@@ -45,10 +43,10 @@ export const $warehousesStorage = createStore<Warehouse[]>([])
           ...el,
           products: el.products.map((item) => {
             if (item.id !== msg.product.id) return item
-            return { ...item, quantity: msg.product.quantity }
+            return {...item, quantity: msg.product.quantity}
           }),
         }
-      return { ...el, products: [...el.products, msg.product] }
+      return {...el, products: [...el.products, msg.product]}
     }),
   )
   .on(updateWarehouse, (state, msg) =>

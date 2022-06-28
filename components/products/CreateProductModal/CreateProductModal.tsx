@@ -1,6 +1,7 @@
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
-import { Button, TextField } from '@mui/material'
-import { useStore } from 'effector-react'
+import React, {ChangeEvent, useCallback, useEffect, useState} from 'react'
+
+import {Button, TextField} from '@mui/material'
+import {useStore} from 'effector-react'
 import Modal from '../../UI/Modal/Modal'
 import {
   $warehousesStorage,
@@ -8,19 +9,21 @@ import {
   updateProductsStorage,
   updateUnallocatedProductQuantity,
 } from '../../../model/model'
-import { BasicWarehouse, Warehouse } from '../../../common/types'
-import styles from './createProductModal.module.css'
+import {BasicWarehouse, Warehouse} from '../../../common/types'
 import ProductDistribution from '../../ProductDistribution/ProductDistribution'
-import { calcDistributedQuantity, voidProduct } from '../../../common/utils'
+import {calcDistributedQuantity, voidProduct} from '../../../common/utils'
+
+import styles from './createProductModal.module.css'
 
 interface CreateProductModalProps {
   setModalIsOpened: React.Dispatch<boolean>
 }
 
 const CreateProductModal: React.FC<CreateProductModalProps> = ({
-  setModalIsOpened,
-}) => {
+                                                                 setModalIsOpened,
+                                                               }) => {
   const warehouseStorage: Warehouse[] = useStore($warehousesStorage)
+
   const [addedWarehouses, setAddedWarehouses] = useState<BasicWarehouse[]>([])
   const [newProduct, setNewProduct] = useState(voidProduct)
 
@@ -71,7 +74,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
       const unallocatedQuantity =
         newProduct.totalQuantity - calcDistributedQuantity(addedWarehouses)
       if (unallocatedQuantity >= 0) {
-        setNewProduct({ ...newProduct, unallocatedQuantity })
+        setNewProduct({...newProduct, unallocatedQuantity})
         return
       }
       if (!selectItem.product.quantity) return
@@ -85,7 +88,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
   const changeProductName = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      setNewProduct({ ...newProduct, name: e.target.value })
+      setNewProduct({...newProduct, name: e.target.value})
     },
     [newProduct],
   )
@@ -109,7 +112,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
       ...addedWarehouses,
       {
         id: 0,
-        product: { id: newProduct.id, quantity: 0 },
+        product: {id: newProduct.id, quantity: 0},
       },
     ])
   }, [addedWarehouses, newProduct])
@@ -121,11 +124,11 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
       apply={addNewProduct}
     >
       <div className={styles.ModalContent}>
-        <TextField label='Название продукта' onChange={changeProductName} />
+        <TextField label='Название продукта' onChange={changeProductName}/>
         <TextField
           type='number'
           label='Количество'
-          inputProps={{ min: 1 }}
+          inputProps={{min: 1}}
           onChange={changeProductQuantity}
         />
         <span>Нераспределено: {newProduct.unallocatedQuantity}</span>

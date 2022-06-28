@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
+
 import { useStore } from 'effector-react'
-import styles from './warehousePageContent.module.css'
 import ProductDistribution from '../../ProductDistribution/ProductDistribution'
 import WarehouseMovement from '../WarehouseMovement/WarehouseMovement'
 import {
@@ -16,6 +16,8 @@ import {
   WAREHOUSE_MOVEMENT,
 } from '../../../common/constants'
 import { findCurrentItem } from '../../../common/utils'
+
+import styles from './warehousePageContent.module.css'
 
 interface WarehousePageContentProps {
   movementWarehouses: BasicWarehouse[]
@@ -34,7 +36,9 @@ const WarehousePageContent: React.FC<WarehousePageContentProps> = ({
 }) => {
   const itsDistributedProducts = currentContent === DISTRIBUTED_PRODUCTS
   const itsWarehouseMovement = currentContent === WAREHOUSE_MOVEMENT
+
   const productStorage = useStore($productsStorage)
+
   const [currentWarehouseProducts, setCurrentWarehouseProducts] = useState(
     editedWarehouse?.products,
   )

@@ -1,34 +1,37 @@
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import { useStore } from 'effector-react'
+import React, {ChangeEvent, useCallback, useEffect, useState} from 'react'
+
+import {useRouter} from 'next/router'
+import {useStore} from 'effector-react'
 import Head from 'next/head'
 import {
   $warehousesStorage,
   deleteWarehouse,
   updateUnallocatedProductQuantity,
 } from '../../model/model'
-import { BasicWarehouse, CurrentContent, Warehouse } from '../../common/types'
+import {BasicWarehouse, CurrentContent, Warehouse} from '../../common/types'
 import ControlWarehouseButtons from '../../components/warehouses/ControlButtons/ControlWarehouseButtons'
 import SwitchCurrentContent from '../../components/warehouses/SwitchCurrentContent/SwitchCurrentContent'
-import styles from './warehousePage.module.css'
 import WarehousePageContent from '../../components/warehouses/WarehousePageContent/WarehousePageContent'
 import ItemBasicContent from '../../components/ItemBasicContent/ItemBasicContent'
 import Modal from '../../components/UI/Modal/Modal'
-import { DISTRIBUTED_PRODUCTS } from '../../common/constants'
+import {DISTRIBUTED_PRODUCTS} from '../../common/constants'
+
+import styles from './warehousePage.module.css'
 
 const WarehousePage = () => {
   const router = useRouter()
+
   const warehousesStorage = useStore($warehousesStorage)
+
   const currentWarehouse = warehousesStorage.find(
     (warehouse) => warehouse.id === Number(router.query.id),
   ) as Warehouse
+
   const [modalIsOpened, setModalIsOpened] = useState(false)
   const [editedWarehouse, setEditedWarehouse] = useState(currentWarehouse)
   const [currentContent, setCurrentContent] =
     useState<CurrentContent>(DISTRIBUTED_PRODUCTS)
-  const [movementWarehouses, setMovementWarehouses] = useState<
-    BasicWarehouse[]
-  >([])
+  const [movementWarehouses, setMovementWarehouses] = useState<BasicWarehouse[]>([])
 
   useEffect(() => {
     setEditedWarehouse(
@@ -50,17 +53,19 @@ const WarehousePage = () => {
 
   const deleteCurrentWarehouse = useCallback(() => {
     router.back()
-    deleteWarehouse(currentWarehouse)
-    currentWarehouse.products.forEach((product) =>
-      updateUnallocatedProductQuantity(product),
-    )
+    setTimeout(() => {
+      deleteWarehouse(currentWarehouse)
+      currentWarehouse.products.forEach((product) =>
+        updateUnallocatedProductQuantity(product),
+      )
+    }, 300)
   }, [currentWarehouse])
 
   return (
     <>
       <Head>
         <title>Warehouse - {editedWarehouse?.name}</title>
-        <meta charSet='utf-8' />
+        <meta charSet='utf-8'/>
       </Head>
       <div className={styles.WarehousePage}>
         {modalIsOpened && (

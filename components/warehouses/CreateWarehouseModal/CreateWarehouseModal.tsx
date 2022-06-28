@@ -1,4 +1,5 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
+
 import { Button, TextField } from '@mui/material'
 import { useStore } from 'effector-react'
 import Modal from '../../UI/Modal/Modal'
@@ -8,9 +9,10 @@ import {
   updateUnallocatedProductQuantity,
   updateWarehousesStorage,
 } from '../../../model/model'
-import styles from './createWarehouseModal.module.css'
 import ProductDistribution from '../../ProductDistribution/ProductDistribution'
 import { findCurrentItem } from '../../../common/utils'
+
+import styles from './createWarehouseModal.module.css'
 
 interface CreateWarehouseModalProps {
   setModalIsOpened: React.Dispatch<boolean>
@@ -22,6 +24,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
   currentWarehouse,
 }) => {
   const productStorage: Product[] = useStore($productsStorage)
+
   const [newWarehouse, setNewWarehouse] = useState<Warehouse>({
     ...currentWarehouse,
     id: Math.random(),
@@ -29,6 +32,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
   const [addedProducts, setAddedProducts] = useState<BasicProduct[]>(
     newWarehouse.products,
   )
+
   const unallocatedProducts = productStorage.filter(
     (product) => product.unallocatedQuantity,
   )

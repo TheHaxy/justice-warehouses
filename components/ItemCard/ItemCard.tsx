@@ -1,4 +1,5 @@
 import React from 'react'
+
 import styles from './ItemCard.module.css'
 
 interface EntityCardProps {
@@ -9,14 +10,16 @@ interface EntityCardProps {
 }
 
 const ItemCard: React.FC<EntityCardProps> = ({
-  name,
-  onClick,
-  totalQuantity,
-  unallocatedQuantity,
-}) => {
+                                               name,
+                                               onClick,
+                                               totalQuantity,
+                                               unallocatedQuantity,
+                                             }) => {
   const totalQuantityExists = totalQuantity && totalQuantity >= 0
+
   const unallocatedQuantityExists =
     unallocatedQuantity && unallocatedQuantity >= 0
+
   return (
     <div className={styles.Item} onClick={onClick}>
       <span className='text-lg'>{name}</span>
