@@ -26,6 +26,7 @@ const ControlProductButtons: React.FC<ControlButtonsProps> = ({
   setWarehousesList,
   productDistributedWarehouses,
 }) => {
+
   const updateProductValue = useCallback(() => {
     updateProduct(editedProduct)
     warehousesList.forEach((warehouse) => {

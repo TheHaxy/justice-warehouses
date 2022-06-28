@@ -64,10 +64,12 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
   }, [currentWarehouseProducts])
 
   const updateWarehouseValue = useCallback(() => {
+    movementWarehouses.forEach((warehouse) => {
+      updateWarehousesProductsStorage(warehouse)
+    })
     updateWarehouse({
       ...editedWarehouse,
       products: editedWarehouse.products
-        .filter((product) => product.id !== 0 && product.quantity !== 0)
         .map((product) => {
           const movementWarehouse = movementWarehouses.find(
             (item) => item.product.id === product.id,
@@ -78,9 +80,6 @@ const ControlWarehouseButtons: React.FC<ControlButtonsProps> = ({
             quantity: product.quantity - movementWarehouse.product.quantity,
           }
         }),
-    })
-    movementWarehouses.forEach((warehouse) => {
-      updateWarehousesProductsStorage(warehouse)
     })
     productStorage.forEach((product) => {
       updateUnallocatedProductQuantity(product)

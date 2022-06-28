@@ -181,7 +181,7 @@ const ProductPage = () => {
                 onBlur={checkProductTotalQuantity}
                 onChange={changeProductTotalQuantity}
               />
-              <span>Нераспределено: {editedProduct?.unallocatedQuantity}</span>
+              <span>Не распределено: {editedProduct?.unallocatedQuantity}</span>
             </ItemBasicContent>
           </div>
           <div className='pr-10 flex flex-col gap-6'>
